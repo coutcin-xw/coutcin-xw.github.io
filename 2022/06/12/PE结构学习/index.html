@@ -16,18 +16,18 @@
   <meta name="author" content="CoutCin">
   <meta name="keywords" content="网络安全,内网安全">
   
-    <meta name="description" content="PE文件解析0x01可执行文件文件格式一般是指数据信息在计算机中存储的格式,不同计算机操作系统,不同应用的文件,在计算机中存储都有可能是不同的 可执行文件:一般是指可以被计算机操作系统识别并执行的文件  windows: 采用PE(Portable Executable)格式 linux:采用ELF(Executable and Linking Format)格式  0x02 PE文件格式PE文件">
+    <meta name="description" content="前言这篇是关于PE结构学习的笔记,参考了两篇文章做了个综合">
 <meta property="og:type" content="article">
 <meta property="og:title" content="PE结构学习">
 <meta property="og:url" content="https://coutcin-xw.github.io/2022/06/12/PE%E7%BB%93%E6%9E%84%E5%AD%A6%E4%B9%A0/index.html">
 <meta property="og:site_name" content="CoutCin&#39;s Blog">
-<meta property="og:description" content="PE文件解析0x01可执行文件文件格式一般是指数据信息在计算机中存储的格式,不同计算机操作系统,不同应用的文件,在计算机中存储都有可能是不同的 可执行文件:一般是指可以被计算机操作系统识别并执行的文件  windows: 采用PE(Portable Executable)格式 linux:采用ELF(Executable and Linking Format)格式  0x02 PE文件格式PE文件">
+<meta property="og:description" content="前言这篇是关于PE结构学习的笔记,参考了两篇文章做了个综合">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://coutcin-xw.github.io/PE%E7%BB%93%E6%9E%84%E5%AD%A6%E4%B9%A0/1631526105_613f1cd909dbf1e79d713-16550184386675.jpg!small">
 <meta property="og:image" content="https://coutcin-xw.github.io/PE%E7%BB%93%E6%9E%84%E5%AD%A6%E4%B9%A0/1993669-20210817234817787-1631854918.png">
 <meta property="og:image" content="https://coutcin-xw.github.io/2022/06/12/PE%E7%BB%93%E6%9E%84%E5%AD%A6%E4%B9%A0/1993669-20210817234817787-1631854918.png">
 <meta property="article:published_time" content="2022-06-12T08:05:37.000Z">
-<meta property="article:modified_time" content="2022-06-12T08:08:53.825Z">
+<meta property="article:modified_time" content="2022-06-12T08:11:16.995Z">
 <meta property="article:author" content="CoutCin">
 <meta property="article:tag" content="笔记">
 <meta property="article:tag" content="Windows">
@@ -224,7 +224,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      81 分钟
+      82 分钟
     </span>
   
 
@@ -256,7 +256,10 @@
             <h1 style="display: none">PE结构学习</h1>
             
             <div class="markdown-body">
-              <h2 id="PE文件解析"><a href="#PE文件解析" class="headerlink" title="PE文件解析"></a>PE文件解析</h2><h3 id="0x01可执行文件"><a href="#0x01可执行文件" class="headerlink" title="0x01可执行文件"></a>0x01可执行文件</h3><p>文件格式一般是指数据信息在计算机中存储的格式,不同计算机操作系统,不同应用的文件,在计算机中存储都有可能是不同的</p>
+              <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>这篇是关于PE结构学习的笔记,参考了两篇文章做了个综合</p>
+<span id="more"></span>
+
+<h2 id="PE文件解析"><a href="#PE文件解析" class="headerlink" title="PE文件解析"></a>PE文件解析</h2><h3 id="0x01可执行文件"><a href="#0x01可执行文件" class="headerlink" title="0x01可执行文件"></a>0x01可执行文件</h3><p>文件格式一般是指数据信息在计算机中存储的格式,不同计算机操作系统,不同应用的文件,在计算机中存储都有可能是不同的</p>
 <p>可执行文件:一般是指可以被计算机操作系统识别并执行的文件</p>
 <blockquote>
 <p>windows: 采用PE(Portable Executable)格式</p>
