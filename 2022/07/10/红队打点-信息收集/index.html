@@ -1,0 +1,929 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="CoutCin">
+  <meta name="keywords" content="网络安全,内网安全">
+  
+    <meta name="description" content="这两周做暴露面梳理,觉得对自己的信息收集能力有了一些提升,我想总结一下信息收集的方法和思路,来巩固加深一下自己的能力.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="红队打点-信息收集">
+<meta property="og:url" content="https://coutcin-xw.github.io/2022/07/10/%E7%BA%A2%E9%98%9F%E6%89%93%E7%82%B9-%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/index.html">
+<meta property="og:site_name" content="CoutCin&#39;s Blog">
+<meta property="og:description" content="这两周做暴露面梳理,觉得对自己的信息收集能力有了一些提升,我想总结一下信息收集的方法和思路,来巩固加深一下自己的能力.">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-07-10T13:25:39.000Z">
+<meta property="article:modified_time" content="2022-07-10T13:26:53.098Z">
+<meta property="article:author" content="CoutCin">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="信息收集">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  <title>红队打点-信息收集 - CoutCin&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/vs2015.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"coutcin-xw.github.io","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":2},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>CoutCin&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="红队打点-信息收集">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-07-10 21:25" pubdate>
+        2022年7月10日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      7.7k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      64 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">红队打点-信息收集</h1>
+            
+            <div class="markdown-body">
+              <h1 id="红队打点中的信息收集"><a href="#红队打点中的信息收集" class="headerlink" title="红队打点中的信息收集"></a><strong>红队打点中的信息收集</strong></h1><p>这两周做暴露面梳理,觉得对自己的信息收集能力有了一些提升,我想总结一下信息收集的方法和思路,来巩固加深一下自己的能力.</p>
+<p>首先我自己的思路如下:</p>
+<ol>
+<li>目标企业信息结构的收集</li>
+<li>敏感信息的进行收集</li>
+<li>域名、ip等网络资产的收集</li>
+<li>整理域名ip等资产，对资产进行端口扫描、指纹识别和目录爆破。</li>
+</ol>
+<h2 id="一-目标企业的信息结构的收集"><a href="#一-目标企业的信息结构的收集" class="headerlink" title="一. 目标企业的信息结构的收集"></a>一. <strong>目标企业的信息结构的收集</strong></h2><p>企业信息结构收集包括对查询目标企业的公司信息，涉及到哪些主站域名，有哪些控股很多的子公司，这些子公司涉及到哪些域名，然后再进行<strong>备案反查</strong>，又会得到一些新的公司，同理也能再次得到一些新的主站域名，将这些进行整理得到一批<strong>待爆破的域名</strong>。</p>
+<p>是除了这些查到的主站域名，往往企业会有app、公众号、小程序这些资产，也对这些资产进行收集，然后又拿到了一批域名。</p>
+<p>常用的搜集信息网站:</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>网址</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>天眼查 查企业&#x2F;子公司&#x2F;域名&#x2F;公众号</td>
+<td><a target="_blank" rel="noopener" href="https://www.tianyancha.com/">https://www.tianyancha.com/</a></td>
+</tr>
+<tr>
+<td>爱企查</td>
+<td><a target="_blank" rel="noopener" href="https://aiqicha.baidu.com/">https://aiqicha.baidu.com/</a></td>
+</tr>
+<tr>
+<td>企查查询</td>
+<td><a target="_blank" rel="noopener" href="https://www.qcc.com/">https://www.qcc.com/</a></td>
+</tr>
+<tr>
+<td>启信宝</td>
+<td><a target="_blank" rel="noopener" href="https://www.qixin.com/">https://www.qixin.com/</a></td>
+</tr>
+</tbody></table>
+<p>一些工具:</p>
+<table>
+<thead>
+<tr>
+<th><a target="_blank" rel="noopener" href="https://github.com/canc3s/cSubsidiary">https://github.com/canc3s/cSubsidiary</a> 利用天眼查查询企业子公司</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/teamssix/pigat">https://github.com/teamssix/pigat</a></td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/wgpsec/ENScan">https://github.com/wgpsec/ENScan</a></td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/wgpsec/ENScan_GO">https://github.com/wgpsec/ENScan_GO</a>  公众号和app的收集： go版本</td>
+</tr>
+</tbody></table>
+<h2 id="二-敏感信息的收集"><a href="#二-敏感信息的收集" class="headerlink" title="二. 敏感信息的收集"></a>二. <strong>敏感信息的收集</strong></h2><p>在第一步骤的基础上 利用搜索引擎、GitHub、网盘等平台进行敏感信息收集看是否能够搜到一些敏感信息的泄漏。</p>
+<h3 id="1-GoogleHack"><a href="#1-GoogleHack" class="headerlink" title="1. GoogleHack"></a>1. <strong>GoogleHack</strong></h3><h4 id="1-1-google搜索语法："><a href="#1-1-google搜索语法：" class="headerlink" title="1.1. google搜索语法："></a>1.1. <strong>google搜索语法：</strong></h4><table>
+<thead>
+<tr>
+<th>语法</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>intext:</td>
+<td>把网页中的正文内容中的某个字符做为搜索条件。</td>
+</tr>
+<tr>
+<td>allintext:</td>
+<td>使用方法和intext类似.</td>
+</tr>
+<tr>
+<td>intitle:</td>
+<td>搜索网页标题中是否有我们所要找的字符.</td>
+</tr>
+<tr>
+<td>cache:</td>
+<td>搜索google里关于某些内容的缓存,有时候往往能找到一些好东西.</td>
+</tr>
+<tr>
+<td>define:</td>
+<td>搜索某个词的定义,例如搜索:define:杭电,将返回关于“杭电”的定义</td>
+</tr>
+<tr>
+<td>filetype:</td>
+<td>搜索制定类型的文件，例如：filetype:doc.将返回所有以doc结尾的文件URL.</td>
+</tr>
+<tr>
+<td>info:</td>
+<td>查找指定站点的一些基本信息.</td>
+</tr>
+<tr>
+<td>inurl:</td>
+<td>搜索我们指定的字符是否存在于URL中.</td>
+</tr>
+<tr>
+<td>allinurl:</td>
+<td>同inurl类似,可指定多个字符.</td>
+</tr>
+<tr>
+<td>linkurl:</td>
+<td>例如搜索:linkurl:hdu.edu.cn可以返回所有和hdu.edu.cn做了链接的URL.</td>
+</tr>
+<tr>
+<td>site:</td>
+<td>搜索指定域名,如site:hdu.edu.cn.将返回所有和hdu.edu.cn有关的URL.</td>
+</tr>
+</tbody></table>
+<h4 id="1-2-工具"><a href="#1-2-工具" class="headerlink" title="1.2. 工具"></a>1.2. <strong>工具</strong></h4><p>一般利用手工有点慢，这边推荐两个工具进行。</p>
+<table>
+<thead>
+<tr>
+<th><a target="_blank" rel="noopener" href="https://github.com/r00tSe7en/GoogleHackingTool">https://github.com/r00tSe7en/GoogleHackingTool</a>  在线Google Hacking 小工具</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a target="_blank" rel="noopener" href="https://www.exploit-db.com/google-hacking-database">https://www.exploit-db.com/google-hacking-database</a>  语法，自己可以脚本里批量搜</td>
+</tr>
+</tbody></table>
+<h3 id="2-GitHub-dorks"><a href="#2-GitHub-dorks" class="headerlink" title="2. GitHub dorks"></a>2. <strong>GitHub dorks</strong></h3><p>GitHub上也有一些搜索语法，如下：</p>
+<table>
+<thead>
+<tr>
+<th>in:name test</th>
+<th>仓库标题搜索含有关键字test</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>in:descripton test</td>
+<td>仓库描述搜索含有关键字</td>
+</tr>
+<tr>
+<td>in:readme test</td>
+<td>Readme文件搜素含有关键字</td>
+</tr>
+<tr>
+<td>stars:&gt;3000 test</td>
+<td>stars数量大于3000的搜索关键字</td>
+</tr>
+<tr>
+<td>stars:1000..3000 test</td>
+<td>stars数量大于1000小于3000的搜索关键字</td>
+</tr>
+<tr>
+<td>forks:&gt;1000 test</td>
+<td>forks数量大于1000的搜索关键字</td>
+</tr>
+<tr>
+<td>forks:1000..3000 test</td>
+<td>forks数量大于1000小于3000的搜索关键字</td>
+</tr>
+<tr>
+<td>size:&gt;&#x3D;5000 test</td>
+<td>指定仓库大于5000k(5M)的搜索关键字</td>
+</tr>
+<tr>
+<td>pushed:&gt;2019-02-12 test</td>
+<td>发布时间大于2019-02-12的搜索关键字</td>
+</tr>
+<tr>
+<td>created:&gt;2019-02-12 test</td>
+<td>创建时间大于2019-02-12的搜索关键字</td>
+</tr>
+<tr>
+<td>user:test</td>
+<td>用户名搜素</td>
+</tr>
+<tr>
+<td>license:apache-2.0 test</td>
+<td>明确仓库的 LICENSE 搜索关键字</td>
+</tr>
+<tr>
+<td>language:java test</td>
+<td>在java语言的代码中搜索关键字</td>
+</tr>
+<tr>
+<td>user:test in:name test</td>
+<td>组合搜索,用户名test的标题含有test的</td>
+</tr>
+</tbody></table>
+<p>一些工具：</p>
+<table>
+<thead>
+<tr>
+<th><a target="_blank" rel="noopener" href="https://github.com/obheda12/GitDorker">https://github.com/obheda12/GitDorker</a></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/michenriksen/gitrob">https://github.com/michenriksen/gitrob</a></td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/dxa4481/truffleHog">https://github.com/dxa4481/truffleHog</a></td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/techgaun/github-dorks">https://github.com/techgaun/github-dorks</a></td>
+</tr>
+</tbody></table>
+<h3 id="3-目标邮箱手机号等信息的收集"><a href="#3-目标邮箱手机号等信息的收集" class="headerlink" title="3. 目标邮箱手机号等信息的收集"></a>3. <strong>目标邮箱手机号等信息的收集</strong></h3><p>这部分信息主要用于后面构造字典或者钓鱼做准备</p>
+<h4 id="3-1-通过googlehack搜集"><a href="#3-1-通过googlehack搜集" class="headerlink" title="3.1 通过googlehack搜集"></a><strong>3.1</strong> <strong>通过googlehack搜集</strong></h4><p>如：</p>
+<table>
+<thead>
+<tr>
+<th>site:target.com intitle:”Outlook Web App”</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>site:target.com intitle:”mail”</td>
+</tr>
+<tr>
+<td>site:target.com intitle:”邮箱”</td>
+</tr>
+</tbody></table>
+<h4 id="3-2-https-app-snov-io"><a href="#3-2-https-app-snov-io" class="headerlink" title="3.2 https://app.snov.io/"></a><strong>3.2</strong> <strong><a target="_blank" rel="noopener" href="https://app.snov.io/">https://app.snov.io/</a></strong></h4><p>一个搜集邮箱信息的平台</p>
+<h4 id="3-3-https-phonebook-cz"><a href="#3-3-https-phonebook-cz" class="headerlink" title="3.3 https://phonebook.cz/"></a><strong>3.3</strong> <strong><a target="_blank" rel="noopener" href="https://phonebook.cz/">https://phonebook.cz/</a></strong></h4><h4 id="3-4-工具收集"><a href="#3-4-工具收集" class="headerlink" title="3.4 工具收集"></a><strong>3.4 工具收集</strong></h4><p>工具：</p>
+<p><code>https://github.com/laramies/theHarvester</code></p>
+<h4 id="3-4-验证邮箱"><a href="#3-4-验证邮箱" class="headerlink" title="3.4 	验证邮箱"></a><strong>3.4 	验证邮箱</strong></h4><p>在收集邮箱之后，我们可以对邮箱进行存活性验证，检测目标邮箱是否存在被弃用的情况（离职，职位调动等）。</p>
+<ol>
+<li><p>通过mailtester.com</p>
+</li>
+<li><p>使用verifyemail</p>
+</li>
+</ol>
+<p><code>https://github.com/Tzeross/verifyemail</code></p>
+<h3 id="4-JS信息收集"><a href="#4-JS信息收集" class="headerlink" title="4. JS信息收集"></a><strong>4. JS信息收集</strong></h3><p>每个网站都拥有大量的js文件，这些js中可能存在一些敏感信息</p>
+<ol>
+<li>某些服务的接口，可以测试这些接口是否有未授权等</li>
+<li>子域名，可能包含有不常见或者子域名收集过程中没收集到的目标</li>
+<li>密码、secretKey等敏感数据</li>
+</ol>
+<h4 id="4-1-JSFinder"><a href="#4-1-JSFinder" class="headerlink" title="4.1 JSFinder"></a>4.1 JSFinder</h4><p><code>https://github.com/Threezh1/JSFinder</code></p>
+<p>JSFinder是一款用作快速在网站的js文件中提取URL，子域名的工具</p>
+<h4 id="4-2-LinkFinder"><a href="#4-2-LinkFinder" class="headerlink" title="4.2  LinkFinder"></a>4.2  LinkFinder</h4><p><code>https://github.com/GerbenJavado/LinkFinder</code></p>
+<p>可以集成到burp中</p>
+<h4 id="4-3-Hae"><a href="#4-3-Hae" class="headerlink" title="4.3 Hae"></a>4.3 Hae</h4><p><code>https://github.com/gh0stkey/HaE</code></p>
+<p><strong>HaE</strong>是基于 <code>BurpSuite</code> 插件 <code>JavaAPI</code> 开发的请求高亮标记与信息提取的辅助型插件。</p>
+<p>基于正则表达式，除了提取敏感信息，也可以提取页面中的链接等。</p>
+<h2 id="三-域名等网络资产的收集"><a href="#三-域名等网络资产的收集" class="headerlink" title="三. 域名等网络资产的收集"></a>三. <strong>域名等网络资产的收集</strong></h2><p>我们获取了一个目标后，第一时间应该尽可能的发现更多的关联资产，扩大我们的攻击面</p>
+<p><strong>主要思路</strong>：</p>
+<p><strong>搜集主站域名和IP–&gt;查询备案信息&amp;查询whois信息&amp;DNS解析记录查询&amp;证书查询–&gt;搜集子域名和子公司的域名–&gt;根据IP和域名相互反查，获得新的ip和域名–&gt;重复以上步骤直到没有新的域名和ip出现为止</strong></p>
+<p>在这之中辅以<strong>网络空间搜索引擎</strong>（如 fofa、zoomeye等）来帮助我们进行收集资产</p>
+<h3 id="1-搜集主站域名和ip"><a href="#1-搜集主站域名和ip" class="headerlink" title="1.搜集主站域名和ip"></a>1.搜集主站域名和ip</h3><p>这个部分的话可以在第一大点中搜集，查询企业备案信息等。</p>
+<h3 id="2-查询备案信息-amp-查询whois信息-amp-DNS解析记录查询-amp-证书查询"><a href="#2-查询备案信息-amp-查询whois信息-amp-DNS解析记录查询-amp-证书查询" class="headerlink" title="2. 查询备案信息&amp;查询whois信息&amp;DNS解析记录查询&amp;证书查询"></a>2. 查询备案信息&amp;查询whois信息&amp;DNS解析记录查询&amp;证书查询</h3><h4 id="2-1-查询备案信息"><a href="#2-1-查询备案信息" class="headerlink" title="2.1 查询备案信息"></a>2.1 查询备案信息</h4><p>通过查询目标企业的备案信息，可直接获取到目标企业注册了哪些域名，从而增加可渗透的目标范围。</p>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>公安部备案查询</td>
+<td><a target="_blank" rel="noopener" href="http://www.beian.gov.cn/portal/recordQuery">http://www.beian.gov.cn/portal/recordQuery</a></td>
+</tr>
+<tr>
+<td>ICP 备案查询网</td>
+<td><a target="_blank" rel="noopener" href="http://www.beianbeian.com/">http://www.beianbeian.com/</a></td>
+</tr>
+<tr>
+<td>备案历史</td>
+<td><a target="_blank" rel="noopener" href="https://icplishi.com/">https://icplishi.com/</a></td>
+</tr>
+</tbody></table>
+<h4 id="2-2-查询Whois信息"><a href="#2-2-查询Whois信息" class="headerlink" title="2.2 查询Whois信息"></a>2.2 查询Whois信息</h4><p><code>WHOIS</code>是用来查询互联网中域名的IP以及所有者等信息的传输协议。我们可以利用这个来获取我们需要的信息。</p>
+<p>在线查询网站</p>
+<ul>
+<li>域名Whois查询 - 站长之家 <a target="_blank" rel="noopener" href="http://whois.chinaz.com/">http://whois.chinaz.com/</a></li>
+<li>站长工具whois查询工具爱站网  <a target="_blank" rel="noopener" href="https://whois.aizhan.com/">https://whois.aizhan.com/</a></li>
+<li>国家域名whois <a target="_blank" rel="noopener" href="https://whois.cnnic.cn/WelcomeServlet">https://whois.cnnic.cn/WelcomeServlet</a></li>
+<li>全球 WHOIS 查询 <a target="_blank" rel="noopener" href="https://www.whois365.com/cn/">https://www.whois365.com/cn/</a></li>
+<li>域名信息查询 - 腾讯云 <a target="_blank" rel="noopener" href="https://whois.cloud.tencent.com/">https://whois.cloud.tencent.com/</a></li>
+<li>whois查询-中国万网 <a target="_blank" rel="noopener" href="https://whois.aliyun.com/">https://whois.aliyun.com/</a></li>
+</ul>
+<h4 id="2-3-查询DNS解析记录"><a href="#2-3-查询DNS解析记录" class="headerlink" title="2.3 查询DNS解析记录"></a>2.3 查询DNS解析记录</h4><ol>
+<li><p>首先查询对方是否为自建dns服务器</p>
+<p><code>nslookup -query=ns xxx.com xxx.xxx.xxx.xxx</code></p>
+</li>
+<li><p>将获取到的NS服务器带入 <a target="_blank" rel="noopener" href="https://hackertarget.com/find-shared-dns-servers/">https://hackertarget.com/find-shared-dns-servers/</a> 进行查询</p>
+</li>
+<li><p>获取历史dns信息</p>
+<p>iphistory：<a target="_blank" rel="noopener" href="https://viewdns.info/iphistory/">https://viewdns.info/iphistory/</a></p>
+<p>DNS查询：(<a target="_blank" rel="noopener" href="https://dnsdb.io/zh-cn/">https://dnsdb.io/zh-cn/</a>)</p>
+<p>微步在线：(<a target="_blank" rel="noopener" href="https://x.threatbook.cn/)--%E8%A6%81%E7%9C%8B%E5%85%B7%E4%BD%93%E7%9A%84IP%E6%97%B6%E9%97%B4">https://x.threatbook.cn/)--要看具体的IP时间</a></p>
+<p>域名查询：(<a target="_blank" rel="noopener" href="https://site.ip138.com/">https://site.ip138.com/</a>)</p>
+<p>DNS历史查询：(<a target="_blank" rel="noopener" href="https://securitytrails.com/">https://securitytrails.com/</a>)</p>
+<p>Netcraft：<a target="_blank" rel="noopener" href="https://sitereport.netcraft.com/?url=github.com">https://sitereport.netcraft.com/?url=github.com</a></p>
+</li>
+</ol>
+<p>工具推荐</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/Sma11New/ip2domain">https://github.com/Sma11New/ip2domain</a> 国内域名推荐ip2domain，会查询权重、ICP备案等</li>
+</ul>
+<h4 id="2-4-证书查询"><a href="#2-4-证书查询" class="headerlink" title="2.4 证书查询"></a>2.4 证书查询</h4><p>SSL证书是一种遵守SSL协议的服务器数字证书，由受信任的根证书颁发机构颁发。 SSL证书采用SSL协议进行通信，SSL证书部署到服务器后，服务器端的访问将启用HTTPS协议。 您的网站将会通过HTTPS加密协议来传输数据，可帮助服务器端和客户端之间建立加密链接，从而保证数据传输的安全。</p>
+<p><strong>通过查询共用SSL证书的网站，可以找到相关的其他域名。</strong></p>
+<ol>
+<li><p>直接浏览器查看</p>
+</li>
+<li><p>通过在线网站</p>
+<ul>
+<li>crt.sh <a target="_blank" rel="noopener" href="https://crt.sh/">https://crt.sh/</a></li>
+</ul>
+</li>
+<li><p>利用网络空间搜索引擎</p>
+</li>
+</ol>
+<h3 id="3-搜集子域名和子公司的域名"><a href="#3-搜集子域名和子公司的域名" class="headerlink" title="3. 搜集子域名和子公司的域名"></a>3. 搜集子域名和子公司的域名</h3><h4 id="3-1-证书透明度收集子域"><a href="#3-1-证书透明度收集子域" class="headerlink" title="3.1 证书透明度收集子域"></a>3.1 证书透明度收集子域</h4><p>要向用户提供加密流量，网站必须先向可信的证书授权中心 (CA) 申请证书。然后，当用户尝试访问相应网站时，此证书即会被提供给浏览器以验证该网站。近年来，由于 HTTPS 证书系统存在结构性缺陷，证书以及签发证书的 CA 很容易遭到入侵和操纵。Google 的证书透明度项目旨在通过提供一个用于监测和审核 HTTPS 证书的开放式框架，来保障证书签发流程安全无虞。</p>
+<p>可以通过以下链接进行在线查询：</p>
+<ul>
+<li>crtsh <a target="_blank" rel="noopener" href="https://crt.sh/">https://crt.sh/</a></li>
+<li>entrust <a target="_blank" rel="noopener" href="https://www.entrust.com/ct-search/">https://www.entrust.com/ct-search/</a></li>
+<li>censys <a target="_blank" rel="noopener" href="https://censys.io/certificates">https://censys.io/certificates</a></li>
+<li>google <a target="_blank" rel="noopener" href="https://google.com/transparencyreport/https/ct/">https://google.com/transparencyreport/https/ct/</a></li>
+<li>spyse <a target="_blank" rel="noopener" href="https://spyse.com/search/certificate">https://spyse.com/search/certificate</a></li>
+<li>certspotter（每小时免费查询100次） <a target="_blank" rel="noopener" href="https://sslmate.com/certspotter/api/">https://sslmate.com/certspotter/api/</a></li>
+<li>facebook（需要登录） <a target="_blank" rel="noopener" href="https://developers.facebook.com/tools/ct">https://developers.facebook.com/tools/ct</a></li>
+</ul>
+<h4 id="3-2-DNS域传送"><a href="#3-2-DNS域传送" class="headerlink" title="3.2 DNS域传送"></a>3.2 DNS域传送</h4><p>DNS服务器分为主服务器，备份服务器，缓存服务器。</p>
+<p><strong>域传送</strong>是指备份服务器从主服务器上复制数据，然后更新自身的数据库，以达到数据同步的目的，这样是为了增加冗余，一旦主服务器出现问题可直接让备份服务器做好支撑工作。</p>
+<p>而<strong>域传送漏洞</strong>则是由于DNS配置不当，导致匿名用户可以获取某个域的所有记录，造成整个网络的拓扑结构泄露给潜在的攻击者，凭借这份网络蓝图，攻击者可以节省大量的扫描时间，同时提升了目标的准确度。</p>
+<p>方法:</p>
+<ol>
+<li>nslookup</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 查询nameserver</span><br>nslookup -<span class="hljs-built_in">type</span>=ns knownsec.com 119.29.29.29<br><span class="hljs-comment"># 指定nameserver，列举域名信息</span><br>nslookup<br>    server f1g1ns1.dnspod.net<br>    <span class="hljs-built_in">ls</span> knownsec.com<br></code></pre></div></td></tr></table></figure>
+
+<blockquote>
+<p> 如果提示无法列出域，那就说明此域名不存在域传送漏洞。</p>
+</blockquote>
+<ol start="2">
+<li><p>dig</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 找到NS服务器</span><br>dig knownsec.com ns<br></code></pre></div></td></tr></table></figure>
+</li>
+<li><p>nmap</p>
+<p>nmap的脚本<code>dns-zone-transfer</code>可以帮我们探测是否存在域传送漏洞</p>
+</li>
+</ol>
+<h4 id="3-3-DNS信息搜集"><a href="#3-3-DNS信息搜集" class="headerlink" title="3.3 DNS信息搜集"></a>3.3 DNS信息搜集</h4><ul>
+<li>Find DNS Host Records (Subdomains) <a target="_blank" rel="noopener" href="https://hackertarget.com/find-dns-host-records/">https://hackertarget.com/find-dns-host-records/</a></li>
+<li>netcraft  <a target="_blank" rel="noopener" href="https://searchdns.netcraft.com/">https://searchdns.netcraft.com/</a></li>
+</ul>
+<h4 id="3-4-子域名爆破"><a href="#3-4-子域名爆破" class="headerlink" title="3.4 子域名爆破"></a>3.4 子域名爆破</h4><ul>
+<li><p>OneForAll</p>
+<p><code>https://github.com/shmilylty/OneForAll</code></p>
+<p>解决大多传统子域名收集工具不够强大、不够友好、缺少维护和效率问题的痛点，是一款集百家之长，功能强大的全面快速子域收集终极神器。</p>
+</li>
+<li><p>subfinder<br><code>https://github.com/projectdiscovery/subfinder</code><br>Subfinder 是一个子域发现工具，它通过使用被动在线资源来发现网站的有效子域。它具有简单的模块化架构，并针对速度进行了优化。 subfinder 是为只做一件事而构建的——被动子域枚举，它做得很好。</p>
+</li>
+<li><p>ksubdomain</p>
+<p><code>https://github.com/knownsec/ksubdomain</code></p>
+<p>ksubdomain是一款基于无状态子域名爆破工具，支持在Windows&#x2F;Linux&#x2F;Mac上使用，它会很快的进行DNS爆破，在Mac和Windows上理论最大发包速度在30w&#x2F;s,linux上为160w&#x2F;s的速度。</p>
+</li>
+<li><p>JSINFO-SCAN</p>
+<p><code>https://github.com/p1g3/JSINFO-SCAN</code></p>
+<p>递归爬取域名(netloc&#x2F;domain)，以及递归从JS中获取信息的工具</p>
+</li>
+<li><p>Layer子域名挖掘机</p>
+<p><code>https://github.com/euphrat1ca/LayerDomainFinder</code></p>
+<p>Layer子域名挖掘机是一款子域名收集工具，拥有简洁的界面和简单的操作模式，支持服务接口查询和暴力枚举获取子域名信息，同时可以通过已获取的域名进行递归爆破。</p>
+</li>
+</ul>
+<h4 id="3-5-域名存活信探测"><a href="#3-5-域名存活信探测" class="headerlink" title="3.5 域名存活信探测"></a>3.5 域名存活信探测</h4><p>获取了大量域名后，我们往往需要判断域名是否存活，域名对应的功能是什么</p>
+<ul>
+<li><p>httpx</p>
+<p><code> https://github.com/projectdiscovery/httpx</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">httpx -title -tech-detect -content-length -random-agent -status-code -title -timeout 2 -threads 50 -l domain.txt<br></code></pre></div></td></tr></table></figure>
+</li>
+<li><p>WebAliveScan</p>
+<p><code>https://github.com/broken5/WebAliveScan</code><br><code>https://github.com/broken5/bscan</code></p>
+<p>对目标域名进行快速的存活扫描、简单的指纹识别、目录扫描。</p>
+</li>
+<li><p>Finger</p>
+<p><code>https://github.com/EASY233/Finger</code></p>
+<p>一款红队在大量的资产中存活探测与重点攻击系统指纹探测工具</p>
+</li>
+</ul>
+<h3 id="4-根据IP和域名相互反查"><a href="#4-根据IP和域名相互反查" class="headerlink" title="4. 根据IP和域名相互反查"></a>4. 根据IP和域名相互反查</h3><p>反查工具</p>
+<table>
+<thead>
+<tr>
+<th>微步在线</th>
+<th><a target="_blank" rel="noopener" href="https://x.threatbook.cn/">https://x.threatbook.cn/</a></th>
+<th>IP反查域名(需积分购买)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>RapidDNS</td>
+<td><a target="_blank" rel="noopener" href="https://rapiddns.io/sameip">https://rapiddns.io/sameip</a></td>
+<td>Same IP Website</td>
+</tr>
+<tr>
+<td>bugscaner</td>
+<td><a target="_blank" rel="noopener" href="http://dns.bugscaner.com/">http://dns.bugscaner.com/</a></td>
+<td>在线同IP网站查询工具</td>
+</tr>
+<tr>
+<td>IP138</td>
+<td><a target="_blank" rel="noopener" href="http://site.ip138.com/">http://site.ip138.com/</a></td>
+<td>IP或域名查询</td>
+</tr>
+<tr>
+<td>Reverse</td>
+<td><a target="_blank" rel="noopener" href="https://hackertarget.com/reverse-ip-lookup/">https://hackertarget.com/reverse-ip-lookup/</a></td>
+<td>IP反查域名</td>
+</tr>
+<tr>
+<td>爱站网</td>
+<td><a target="_blank" rel="noopener" href="https://dns.aizhan.com/">https://dns.aizhan.com/</a></td>
+<td>IP反查域名</td>
+</tr>
+<tr>
+<td>站长工具</td>
+<td><a target="_blank" rel="noopener" href="http://s.tool.chinaz.com/same">http://s.tool.chinaz.com/same</a></td>
+<td>站长之家同IP网站查询</td>
+</tr>
+<tr>
+<td>IPIP.NET</td>
+<td><a target="_blank" rel="noopener" href="https://tools.ipip.net/ipdomain.php">https://tools.ipip.net/ipdomain.php</a></td>
+<td>反查域名</td>
+</tr>
+<tr>
+<td>yougetsignal</td>
+<td><a target="_blank" rel="noopener" href="https://www.yougetsignal.com/tools/web-sites-on-web-server/">https://yougetsignal.com/tools/web-sites-on-web-server/</a></td>
+<td>IP反查域名</td>
+</tr>
+<tr>
+<td>domaintools.com</td>
+<td><a target="_blank" rel="noopener" href="https://reverseip.domaintools.com/">https://reverseip.domaintools.com/</a></td>
+<td>Reverse IP Lookup</td>
+</tr>
+<tr>
+<td>dnslytics</td>
+<td><a target="_blank" rel="noopener" href="https://dnslytics.com/reverse-ip">https://dnslytics.com/reverse-ip</a></td>
+<td>IP在线反查</td>
+</tr>
+<tr>
+<td>viewdns.info Reverse</td>
+<td><a target="_blank" rel="noopener" href="https://viewdns.info/reverseip/">https://viewdns.info/reverseip/</a></td>
+<td>IP Lookup</td>
+</tr>
+<tr>
+<td>webscan.cc</td>
+<td><a target="_blank" rel="noopener" href="https://www.webscan.cc/">https://www.webscan.cc/</a></td>
+<td>同IP网站查询,C段查询,IP反查域名</td>
+</tr>
+</tbody></table>
+<p>工具推荐：</p>
+<p><code>https://www.infobyip.com/ipbulklookup.php 批量ip反查</code></p>
+<h2 id="四、整理域名ip等资产，对资产进行端口扫描、指纹识别和目录爆破。"><a href="#四、整理域名ip等资产，对资产进行端口扫描、指纹识别和目录爆破。" class="headerlink" title="四、整理域名ip等资产，对资产进行端口扫描、指纹识别和目录爆破。"></a>四、整理域名ip等资产，对资产进行端口扫描、指纹识别和目录爆破。</h2><h3 id="1-端口扫描"><a href="#1-端口扫描" class="headerlink" title="1. 端口扫描"></a>1. 端口扫描</h3><p>一般使用nmap,配合网络空间搜索引擎搜集可以更加全面。</p>
+<h3 id="2-指纹识别"><a href="#2-指纹识别" class="headerlink" title="2. 指纹识别"></a>2. 指纹识别</h3><p>在线平台：</p>
+<ul>
+<li>bugscaner: <a target="_blank" rel="noopener" href="http://whatweb.bugscaner.com/look/">http://whatweb.bugscaner.com/look/</a></li>
+<li>数字观星: <a target="_blank" rel="noopener" href="https://fp.shuziguanxing.com/#/">https://fp.shuziguanxing.com/#/</a></li>
+<li>云悉: <a target="_blank" rel="noopener" href="https://www.yunsee.cn/">https://www.yunsee.cn/</a></li>
+</ul>
+<p>工具：</p>
+<ul>
+<li><code>御剑Web指纹识别</code></li>
+<li><code>WhatWeb</code></li>
+<li><code>Test404轻量CMS指纹识别+v2.1</code></li>
+<li><code>椰树</code></li>
+<li>一些Github项目<ul>
+<li>CMSeeK <a target="_blank" rel="noopener" href="https://github.com/Tuhinshubhra/CMSeeK">https://github.com/Tuhinshubhra/CMSeeK</a></li>
+<li>CMSmap <a target="_blank" rel="noopener" href="https://github.com/Dionach/CMSmap">https://github.com/Dionach/CMSmap</a></li>
+<li>ACMSDiscovery <a target="_blank" rel="noopener" href="https://github.com/aedoo/ACMSDiscovery">https://github.com/aedoo/ACMSDiscovery</a></li>
+<li>TideFinger <a target="_blank" rel="noopener" href="https://github.com/TideSec/TideFinger">https://github.com/TideSec/TideFinger</a></li>
+<li>AngelSword <a target="_blank" rel="noopener" href="https://github.com/Lucifer1993/AngelSword">https://github.com/Lucifer1993/AngelSword</a></li>
+</ul>
+</li>
+</ul>
+<h3 id="3-目录爆破"><a href="#3-目录爆破" class="headerlink" title="3. 目录爆破"></a>3. 目录爆破</h3><p><strong>yuhScan:</strong> <a target="_blank" rel="noopener" href="https://github.com/hunyaio/yuhScan">https://github.com/hunyaio/yuhScan</a></p>
+<ul>
+<li>go高并发、支持递归、分组扫描、BUG修复快、熟人可以定制开发</li>
+</ul>
+<p><strong>dirmap:</strong> <a target="_blank" rel="noopener" href="https://github.com/H4ckForJob/dirmap">https://github.com/H4ckForJob/dirmap</a></p>
+<ul>
+<li>支持递归扫描、功能将会强于DirBuster、Dirsearch、cansina、御剑</li>
+</ul>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/WEB%E5%AE%89%E5%85%A8/">WEB安全</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E7%AC%94%E8%AE%B0/">笔记</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/">信息收集</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/06/12/PE%E7%BB%93%E6%9E%84%E5%AD%A6%E4%B9%A0/">
+                        <span class="hidden-mobile">PE结构学习</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>
