@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>红队打点-思路</title>
+      <link href="/2022/07/17/%E7%BA%A2%E9%98%9F%E6%89%93%E7%82%B9-%E6%80%9D%E8%B7%AF/"/>
+      <url>/2022/07/17/%E7%BA%A2%E9%98%9F%E6%89%93%E7%82%B9-%E6%80%9D%E8%B7%AF/</url>
+      
+        <content type="html"><![CDATA[<h1 id="红队打点一般思路"><a href="#红队打点一般思路" class="headerlink" title="红队打点一般思路"></a>红队打点一般思路</h1><p>这周参与了一个攻防演练，虽然什么漏洞都没挖到，但是学习了面对一个站的打点思路。</p><h2 id="信息收集"><a href="#信息收集" class="headerlink" title="信息收集"></a>信息收集</h2><p>首先肯定是信息收集，但是信息收集这块不是这篇文章的重点，这里只是提一句。</p><h2 id="漏洞挖掘"><a href="#漏洞挖掘" class="headerlink" title="漏洞挖掘"></a>漏洞挖掘</h2><h3 id="敏感信息泄露"><a href="#敏感信息泄露" class="headerlink" title="敏感信息泄露"></a>敏感信息泄露</h3><p>这类的话考虑目录扫描敏感文件，构造报错页面等方法。有些网站的备份文件放在网站根目录下，可能导致源码或者数据泄露。</p><p>一般的信息泄露点：</p><figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python">Git/SVN泄露<br>robots.txt泄露<br><span class="hljs-built_in">zip</span>等网站源码泄露<br>phps源码泄露<br>vim等编辑器非正常退出备份文件泄露<br>技术文档信息收集<br>探针敏感路径泄露<br>目录遍历漏洞<br>前端文件敏感信息泄露<br></code></pre></div></td></tr></table></figure><h3 id="弱口令-amp-未授权"><a href="#弱口令-amp-未授权" class="headerlink" title="弱口令&amp;未授权"></a>弱口令&amp;未授权</h3><p>遇到登陆框或者其他组建首先尝试下弱口令，对于有些应用可以尝试下未授权</p><p>如下：</p><figure class="highlight mipsasm"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs mipsasm">Redis 未授权访问漏洞<br>MongoDB 未授权访问漏洞<br><span class="hljs-keyword">Jenkins </span>未授权访问漏洞<br>Memcached 未授权访问漏洞<br><span class="hljs-keyword">JBOSS </span>未授权访问漏洞<br>VNC 未授权访问漏洞<br>Docker 未授权访问漏洞<br>ZooKeeper 未授权访问漏洞<br>Rsync 未授权访问漏洞<br>Atlassian Crowd 未授权访问漏洞<br>CouchDB 未授权访问漏洞<br>Elasticsearch 未授权访问漏洞<br>Hadoop 未授权访问漏洞<br><span class="hljs-keyword">Jupyter </span>Notebook 未授权访问漏洞<br></code></pre></div></td></tr></table></figure><h3 id="爆破"><a href="#爆破" class="headerlink" title="爆破"></a>爆破</h3><p>首先，如果有登陆页面就看看是否能够爆破，在上一部分信息收集中的端口扫描之后看看有没有应用程序可以进行爆破的，如：mysql、ftp、mongodb、rdp、oracle、ssh、redis、memcached、smtp、pop3、sqlserver等等。</p><p>一般使用的工具：</p><figure class="highlight nginx"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs nginx"><span class="hljs-attribute">msf</span><br>hydra 一个支持众多协议的爆破工具。<br>burpsuite<br></code></pre></div></td></tr></table></figure><h3 id="利用已知漏洞"><a href="#利用已知漏洞" class="headerlink" title="利用已知漏洞"></a>利用已知漏洞</h3><p>面对一个站首先要关注组建框架，cms类型，或者oa之类的信息，看是否有已知的历史漏洞。</p><p>例如这些：</p><figure class="highlight subunit"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs subunit">Shiro 反序列化漏洞<br>Thinkphp 反序列化漏洞、RCE<br>FastJSON 未授权访问、任意命令执行<br>Joomla 3.7.0 (CVE<span class="hljs-string">-2017</span><span class="hljs-string">-8917</span>) SQL注入漏洞<br>Joomla 3.4.5 反序列化漏洞（CVE<span class="hljs-string">-2015</span><span class="hljs-string">-8562</span>）<br>WebSphere反序列化漏洞CVE<span class="hljs-string">-2020</span><span class="hljs-string">-4450</span><br> IIS6.0PUT漏洞<br>Tomcat 7.0.0 – 7.0.81远程代码执行<br>FastCGI未授权访问、任意命令执行<br>致远oa任意文件上传、命令执行<br>泛微oa任意文件上传、sql注入<br>金蝶erp远程命令执行<br>Jboss反序列化<br>Weblogic反序列化<br>禅道erp命令执行、文件上传<br>PHPCGI远程代码执行<br>Confluence远程代码执行(CVE<span class="hljs-string">-2019</span><span class="hljs-string">-3396</span>)<br>Ruby On Rails任意文件读取(CVE<span class="hljs-string">-2019</span><span class="hljs-string">-5418</span>)<br>Jenkins远程代码执行(CVE<span class="hljs-string">-2019</span><span class="hljs-string">-1003030</span>)<br>ColdFusion远程代码执行(CVE<span class="hljs-string">-2019</span><span class="hljs-string">-7091</span>)<br>Spring Boot Actuator远程代码执行<br>Drupal8 REST Module远程代码执行(CVE<span class="hljs-string">-2019</span><span class="hljs-string">-6340</span>)<br>Jenkins远程代码执行(CVE<span class="hljs-string">-2019</span><span class="hljs-string">-1003000</span>)<br>Apache Solr远程代码执行(CVE<span class="hljs-string">-2019</span><span class="hljs-string">-17558</span>)<br></code></pre></div></td></tr></table></figure><blockquote><p>Tip：这部分非常需要经验和积累，这也是我欠缺的地方。</p></blockquote><h3 id="黑盒测试"><a href="#黑盒测试" class="headerlink" title="黑盒测试"></a>黑盒测试</h3><p>当上面都没有突破时候，就要开始黑盒测试了。对目标进行漏洞挖掘。</p><ul><li>测试目标逻辑漏洞 </li><li>找可能存在SQL注入的点进行测试</li><li>有文件上传的地方进行测试看是否存在文件上传漏洞</li><li>抓包对参数进行测试看是否存在文件包含&#x2F;下载漏洞</li><li>对于其他漏洞也要测测如、xxe、ssrf、csrf等</li></ul><p>其他的我还未想到，以后get到了再补充。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 红队 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 笔记 </tag>
+            
+            <tag> 信息收集 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>红队打点-信息收集</title>
       <link href="/2022/07/10/%E7%BA%A2%E9%98%9F%E6%89%93%E7%82%B9-%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/"/>
       <url>/2022/07/10/%E7%BA%A2%E9%98%9F%E6%89%93%E7%82%B9-%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/</url>
@@ -13,7 +40,7 @@
       
       <categories>
           
-          <category> WEB安全 </category>
+          <category> 红队 </category>
           
       </categories>
       
