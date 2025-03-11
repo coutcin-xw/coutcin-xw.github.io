@@ -1,0 +1,771 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="CoutCin">
+  <meta name="keywords" content="网络安全,内网安全,技术宅">
+  
+    <meta name="description" content="0x00 前言域渗透需要知道的知识在这一部分,主要了解kerberos协议,黄金&#x2F;白银票据等知识">
+<meta property="og:type" content="article">
+<meta property="og:title" content="内网渗透-域渗透">
+<meta property="og:url" content="https://coutcin-xw.github.io/2022/05/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%9F%9F%E6%B8%97%E9%80%8F/index.html">
+<meta property="og:site_name" content="CoutCin&#39;s Blog">
+<meta property="og:description" content="0x00 前言域渗透需要知道的知识在这一部分,主要了解kerberos协议,黄金&#x2F;白银票据等知识">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://coutcin-xw.github.io/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%9F%9F%E6%B8%97%E9%80%8F/1595488751709-c9690fe7-9aa1-496e-a887-bcda39fba3c3.png">
+<meta property="og:image" content="https://coutcin-xw.github.io/2022/05/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%9F%9F%E6%B8%97%E9%80%8F/1595488751709-c9690fe7-9aa1-496e-a887-bcda39fba3c3.png">
+<meta property="og:image" content="https://coutcin-xw.github.io/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%9F%9F%E6%B8%97%E9%80%8F/1595488751711-e3540feb-e69f-4590-bb13-2c04c05c3a12.png">
+<meta property="og:image" content="https://coutcin-xw.github.io/2022/05/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%9F%9F%E6%B8%97%E9%80%8F/1595488751711-e3540feb-e69f-4590-bb13-2c04c05c3a12.png">
+<meta property="og:image" content="https://coutcin-xw.github.io/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%9F%9F%E6%B8%97%E9%80%8F/1595488751725-e42a009b-2037-4e56-a84e-a6ca5019c60b.png">
+<meta property="og:image" content="https://coutcin-xw.github.io/2022/05/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%9F%9F%E6%B8%97%E9%80%8F/1595488751725-e42a009b-2037-4e56-a84e-a6ca5019c60b.png">
+<meta property="og:image" content="https://coutcin-xw.github.io/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%9F%9F%E6%B8%97%E9%80%8F/1595488751730-9c51198a-073a-4e02-8232-f402e0ffb228.png">
+<meta property="og:image" content="https://coutcin-xw.github.io/2022/05/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%9F%9F%E6%B8%97%E9%80%8F/1595488751730-9c51198a-073a-4e02-8232-f402e0ffb228.png">
+<meta property="article:published_time" content="2022-05-01T06:43:09.000Z">
+<meta property="article:modified_time" content="2022-05-01T10:32:50.927Z">
+<meta property="article:author" content="CoutCin">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="内网渗透">
+<meta property="article:tag" content="域渗透">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://coutcin-xw.github.io/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%9F%9F%E6%B8%97%E9%80%8F/1595488751709-c9690fe7-9aa1-496e-a887-bcda39fba3c3.png">
+  
+  
+  
+  <title>内网渗透-域渗透 - CoutCin&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"coutcin-xw.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":2},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>CoutCin&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="内网渗透-域渗透"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-05-01 14:43" pubdate>
+          2022年5月1日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          1.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          13 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">内网渗透-域渗透</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h1><p>域渗透需要知道的知识在这一部分,主要了解<code>kerberos</code>协议,黄金&#x2F;白银票据等知识</p>
+<span id="more"></span>
+
+<p>学习域渗透，绕不开对kerberos协议的学习。</p>
+<h1 id="0x01-Kerberos协议"><a href="#0x01-Kerberos协议" class="headerlink" title="0x01 Kerberos协议"></a>0x01 Kerberos协议</h1><p><code>Kerberos </code>是一种网络认证协议，其设计目标是通过密钥系统为客户机 &#x2F; 服务器应用程序提供强大的认证服务。</p>
+<h2 id="协议的三个主要角色"><a href="#协议的三个主要角色" class="headerlink" title="协议的三个主要角色"></a>协议的三个主要角色</h2><ul>
+<li>客户端（Client）：发送请求的一方</li>
+<li>服务端（Server）：接收请求的一方</li>
+<li>密钥分发中心（Key Distribution Center，KDC），而密钥分发中心一般又分为两部分，分别是：<ul>
+<li>AS（Authentication Server）：认证服务器，专门用来认证客户端的身份并发放客户用于访问TGS的TGT（票据授予票据&#x2F;Ticket Granting Ticket）</li>
+<li>TGS（Ticket Granting Server）：票据授予服务器，用来发放整个认证过程以及客户端访问服务端时所需的ST(服务授予票据 Server Ticket)</li>
+</ul>
+</li>
+</ul>
+<h2 id="协议过程分析"><a href="#协议过程分析" class="headerlink" title="协议过程分析"></a>协议过程分析</h2><h3 id="简易的认证过程"><a href="#简易的认证过程" class="headerlink" title="简易的认证过程"></a>简易的认证过程</h3><p>如图所示就是基本的认证过程</p>
+<p><img src="/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%9F%9F%E6%B8%97%E9%80%8F/1595488751709-c9690fe7-9aa1-496e-a887-bcda39fba3c3.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<img src="/2022/05/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%9F%9F%E6%B8%97%E9%80%8F/1595488751709-c9690fe7-9aa1-496e-a887-bcda39fba3c3.png" srcset="/img/loading.gif" lazyload class="" title="Kerberos认证过程">
+
+<p>当Client想要访问Server上的某个服务时</p>
+<ul>
+<li>首先向AS证明自己的身份，AS认证通过发放TGT给Client，</li>
+<li>然后Client拿着TGT向TGS发起认证请求，认证通过返还一个ST给Client</li>
+<li>最后Client拿着ST去访问server</li>
+</ul>
+<h3 id="Client-与-AS-的交互"><a href="#Client-与-AS-的交互" class="headerlink" title="Client 与 AS 的交互"></a>Client 与 AS 的交互</h3><p><img src="/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%9F%9F%E6%B8%97%E9%80%8F/1595488751711-e3540feb-e69f-4590-bb13-2c04c05c3a12.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<img src="/2022/05/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%9F%9F%E6%B8%97%E9%80%8F/1595488751711-e3540feb-e69f-4590-bb13-2c04c05c3a12.png" srcset="/img/loading.gif" lazyload class="" title="Client 与 AS 的交互">
+
+<h4 id="客户端请求-KRB-AS-REQ"><a href="#客户端请求-KRB-AS-REQ" class="headerlink" title="客户端请求 :KRB_AS_REQ:"></a>客户端请求 :KRB_AS_REQ:</h4><p>Client 先向 KDC 的 AS 发送 Authenticator1,内容为通过 Client NTML Hash 加密的时间戳、Client ID、网络地址、加密类型等内容。</p>
+<h4 id="AS相应-KBR-AS-REP"><a href="#AS相应-KBR-AS-REP" class="headerlink" title="AS相应 :KBR_AS_REP:"></a>AS相应 :KBR_AS_REP:</h4><p>当 AS 接受到 Client的请求后，向AD发起请求，通过AD获取密码Hash并且验证信息。验证成功后生成一个由Client Hash加密的<code>Session Key as</code>和使用域特定账户<code>krbtgt </code>Hash加密的TGT（包含了<code>session key as</code>,超时时间等信息）返回给cilent客户端。</p>
+<p>kerberos 第一步请求完成。</p>
+<h3 id="Client-与-TGS-的交互"><a href="#Client-与-TGS-的交互" class="headerlink" title="Client 与 TGS 的交互"></a>Client 与 TGS 的交互</h3><p><img src="/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%9F%9F%E6%B8%97%E9%80%8F/1595488751725-e42a009b-2037-4e56-a84e-a6ca5019c60b.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<img src="/2022/05/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%9F%9F%E6%B8%97%E9%80%8F/1595488751725-e42a009b-2037-4e56-a84e-a6ca5019c60b.png" srcset="/img/loading.gif" lazyload class="" title="Client 与 TGS 的交互">
+
+<h4 id="客户端请求-KBR-TGS-REQ"><a href="#客户端请求-KBR-TGS-REQ" class="headerlink" title="客户端请求: KBR_TGS_REQ:"></a>客户端请求: KBR_TGS_REQ:</h4><p>client接收到as返回的<code>KBR_AS_REP</code>:，使用自身的hash解密第一部分得到<code>Session Key as</code>,由于不知道krbtgt的Hash，因此TGT无法解密。使用得到的<code>Session-Key as</code> 加密数据(<code>timestamp</code>、<code>Client-info</code>、<code>Server-info</code>)作为一部分，然后把无法解密的TGT做为第二部分组成<code>KBR_TGS_REQ</code>发送给TGS。</p>
+<h4 id="TGS响应-KBR-TGS-REP"><a href="#TGS响应-KBR-TGS-REP" class="headerlink" title="TGS响应: KBR_TGS-REP:"></a>TGS响应: KBR_TGS-REP:</h4><p>TGS 收到 Client 发送过来的 TGT 和 <code>Session key-as </code>加密的数据（<code>timestamp</code>、<code>Client-info</code>、<code>Server-info</code>）后，使用krbtgt的hash解密TGT，得到<code>Session-key as</code>等信息，然后拿着<code>Session-key as</code>去解密第一部分，TGA将两部分中的时间戳，客户端等信息进行比较，如果认证都通过，发送<code>KBR_TGS-REP</code>给Client。</p>
+<p>KBR_TGS-REP由二部分组成，</p>
+<ul>
+<li>第一部分是由<code>Session-key as</code>加密的<code>Session-key tgs</code></li>
+<li>第二部分是ST（由Server NTLM-hash加密的<code>Session-key tgs</code>、<code>timestamp</code>、<code>Client-info</code>）</li>
+</ul>
+<p>kerberos第二步请求完成。</p>
+<h3 id="Client-与-Server-的交互"><a href="#Client-与-Server-的交互" class="headerlink" title="Client 与 Server 的交互"></a>Client 与 Server 的交互</h3><p><img src="/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%9F%9F%E6%B8%97%E9%80%8F/1595488751730-9c51198a-073a-4e02-8232-f402e0ffb228.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<img src="/2022/05/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%9F%9F%E6%B8%97%E9%80%8F/1595488751730-9c51198a-073a-4e02-8232-f402e0ffb228.png" srcset="/img/loading.gif" lazyload class="" title="Client 与 Server 的交互">
+
+<p>client接收到TGS返回的<code>KBR_TGS-REP</code>，首先使用<code>Sessions-key as</code>解密第一部分得到<code>Session-key tgs</code>，由于不知道Server NTML hash因此第二部分无法解密。</p>
+<h4 id="客户端向服务器请求-KRB-AP-REQ："><a href="#客户端向服务器请求-KRB-AP-REQ：" class="headerlink" title="客户端向服务器请求 KRB_AP_REQ："></a>客户端向服务器请求 KRB_AP_REQ：</h4><p>client使用得到的Session-key tgs对timetamp、Client-info、Server-info信息进行加密得到第一部分，ST做为第二部分发送给server。</p>
+<h4 id="客服务器返回-KRB-AP-REP："><a href="#客服务器返回-KRB-AP-REP：" class="headerlink" title="客服务器返回 KRB_AP_REP："></a>客服务器返回 KRB_AP_REP：</h4><p>server收到client发送的KRB_AP_REQ，使用自身的server NTML-hash解密ST，得到Session-key tgs，再使用Session-key tgs解密第一部分，然后对两部分的内容进行比较。验证通过后发送KRB_AP_REP给client，两者建立通信。</p>
+<p>kerberos第三步请求完成。</p>
+<h1 id="0x02-黄金票据"><a href="#0x02-黄金票据" class="headerlink" title="0x02 黄金票据"></a>0x02 黄金票据</h1><p>用于拿下域控主机后的权限维持，krbtgt 账户的密码基本不会更改。</p>
+<p>Client通过了第一次AS认证后，返回给TGT用于第二次认证，通过伪造TGT跳过AS认证，直接进行第二次认证，从而和任意server进行通信。</p>
+<h2 id="原理分析"><a href="#原理分析" class="headerlink" title="原理分析"></a>原理分析</h2><ul>
+<li><p>kerberos第二次认证发送的KBR_TGS_REQ由二部分组成：Session-Key as 加密数据(timestamp、Client-info、Server-info)和TGT</p>
+</li>
+<li><p>TGS并没有保存Session-Key as的值，因此可以随意构造Session-Key as，再利用krbtgt 用户的Hash对TGT进行伪造。</p>
+</li>
+</ul>
+<h2 id="使用条件："><a href="#使用条件：" class="headerlink" title="使用条件："></a>使用条件：</h2><ul>
+<li>域名称</li>
+<li>域的 SID</li>
+<li>域的krbtgt账户的密码 hash 值</li>
+<li>伪造的用户名，可以是任意用户，通常是administrator</li>
+</ul>
+<h2 id="黄金票据防御"><a href="#黄金票据防御" class="headerlink" title="黄金票据防御"></a>黄金票据防御</h2><ul>
+<li>限制域管理员登录到除域控制器和少数管理服务器以外的任何其他计算机（不要让其他管理员登录到这些服务器）将所有其他权限委派给自定义管理员组。这大大降低了攻击者访问域控制器的Active Directory的ntds.dit。如果攻击者无法访问AD数据库（ntds.dit文件），则无法获取到KRBTGT帐户密码。</li>
+<li>禁用KRBTGT帐户，并保存当前的密码以及以前的密码。KRBTGT密码哈希用于在Kerberos票据上签署PAC并对TGT（身份验证票据）进行加密。如果使用不同的密钥（密码）对证书进行签名和加密，则DC（KDC）通过检查KRBTGT以前的密码来验证。</li>
+</ul>
+<h1 id="0x03-白银票据"><a href="#0x03-白银票据" class="headerlink" title="0x03 白银票据"></a>0x03 白银票据</h1><p>学习完黄金票据，再学习白银票据。</p>
+<p>第二次认证返回ST给client，通过对ST进行伪造，跳过和client和KDC的前二次认证过程，直接与server进行认证。</p>
+<h2 id="原理分析-1"><a href="#原理分析-1" class="headerlink" title="原理分析"></a>原理分析</h2><p>在第三次认证中，Client会向Server发送KRB_AP_REQ，包括两部分：</p>
+<ul>
+<li><p>第一部分：Session key tgs 加密的 Client-info、timestamp 等信息</p>
+</li>
+<li><p>第二部分：ST(ticket)：由Server NTLM-hash加密的数据(Session-key tgs、timestamp、Client-info)</p>
+</li>
+</ul>
+<p>因此，在知道Server NTLM-hash的情况下可以对ST进行伪造，server并没有保持Session key tgs，因此可以随意伪造Session key tgs。</p>
+<h2 id="使用条件"><a href="#使用条件" class="headerlink" title="使用条件"></a>使用条件</h2><ul>
+<li>域名称</li>
+<li>域的 SID</li>
+<li>域中Server服务器账户的NTLM-Hash</li>
+<li>伪造的用户名(可以是任意的)</li>
+</ul>
+<p>用于拿下一台域内主机后的权限维持</p>
+<h1 id="0x04-黄金白银票据之间的区别"><a href="#0x04-黄金白银票据之间的区别" class="headerlink" title="0x04 黄金白银票据之间的区别"></a>0x04 黄金白银票据之间的区别</h1><h4 id="访问权限不同"><a href="#访问权限不同" class="headerlink" title="访问权限不同"></a>访问权限不同</h4><ul>
+<li>Golden Ticket: 伪造TGT,可以获取任何Kerberos服务权限</li>
+<li>Silver Ticket: 伪造TGS,只能访问指定的服务</li>
+</ul>
+<h4 id="加密方式不同"><a href="#加密方式不同" class="headerlink" title="加密方式不同"></a>加密方式不同</h4><ul>
+<li>Golden Ticket 由Kerberos的Hash—&gt; krbtgt加密</li>
+<li>Silver Ticket 由服务器端密码的Hash值—&gt; master key 加密</li>
+</ul>
+<h4 id="认证流程不同"><a href="#认证流程不同" class="headerlink" title="认证流程不同"></a>认证流程不同</h4><ul>
+<li>Golden Ticket 的利用过程需要访问域控(KDC)</li>
+<li>Silver Ticket 可以直接跳过 KDC 直接访问对应的服务器</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8/" class="category-chain-item">内网安全</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/" class="print-no-link">#笔记</a>
+      
+        <a href="/tags/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/" class="print-no-link">#内网渗透</a>
+      
+        <a href="/tags/%E5%9F%9F%E6%B8%97%E9%80%8F/" class="print-no-link">#域渗透</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>内网渗透-域渗透</div>
+      <div>https://coutcin-xw.github.io/2022/05/01/内网渗透-域渗透/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>CoutCin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年5月1日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/05/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%86%85%E7%BD%91%E4%BB%A3%E7%90%86%E8%BD%AC%E5%8F%91%E4%B8%8E%E9%9A%A7%E9%81%93%E9%9A%90%E8%97%8F/" title="内网渗透-内网代理转发与隧道隐藏">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">内网渗透-内网代理转发与隧道隐藏</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/05/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%86%85%E7%BD%91%E6%A8%AA%E5%90%91%E6%B8%97%E9%80%8F/" title="内网渗透-内网横向渗透">
+                        <span class="hidden-mobile">内网渗透-内网横向渗透</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

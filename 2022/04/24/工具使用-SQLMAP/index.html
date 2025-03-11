@@ -1,0 +1,1186 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="CoutCin">
+  <meta name="keywords" content="网络安全,内网安全,技术宅">
+  
+    <meta name="description" content="0x00 前言SQLMAP 作为SQL注入界自动化检测工具,能够实现高难度漏洞检测, 脱裤等工作,大大减少安全人员的时间.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="工具使用-SQLMAP">
+<meta property="og:url" content="https://coutcin-xw.github.io/2022/04/24/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8-SQLMAP/index.html">
+<meta property="og:site_name" content="CoutCin&#39;s Blog">
+<meta property="og:description" content="0x00 前言SQLMAP 作为SQL注入界自动化检测工具,能够实现高难度漏洞检测, 脱裤等工作,大大减少安全人员的时间.">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-04-23T16:46:07.000Z">
+<meta property="article:modified_time" content="2022-08-12T04:05:42.471Z">
+<meta property="article:author" content="CoutCin">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="工具">
+<meta property="article:tag" content="sqlmap">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>工具使用-SQLMAP - CoutCin&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"coutcin-xw.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":2},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>CoutCin&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="工具使用-SQLMAP"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-04-24 00:46" pubdate>
+          2022年4月24日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          4.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          40 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">工具使用-SQLMAP</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>SQLMAP 作为SQL注入界自动化检测工具,能够实现高难度漏洞检测, 脱裤等工作,大大减少安全人员的时间.</p>
+<span id="more"></span>
+
+<h2 id="0x01-用法"><a href="#0x01-用法" class="headerlink" title="0x01 用法"></a>0x01 用法</h2><p>拿到一个工具之前,我们可以用过帮助文档查看它一般的用法. 运行以下命令, 可以查看到详细的帮助:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -hh<br></code></pre></td></tr></table></figure>
+
+<h3 id="目标选定"><a href="#目标选定" class="headerlink" title="目标选定"></a>目标选定</h3><h4 id="指定URL"><a href="#指定URL" class="headerlink" title="指定URL"></a>指定URL</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://svip.qq.com/abc?d=1&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>对指定的URL进行SQL注入检测</p>
+<h4 id="指定GOOGLE搜索的关键字"><a href="#指定GOOGLE搜索的关键字" class="headerlink" title="指定GOOGLE搜索的关键字"></a>指定GOOGLE搜索的关键字</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -g <span class="hljs-string">&#x27;site:&quot;svip.qq.com&quot; filetype:pdf&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p>对GOOGLE搜索出来的每一页结果中的链接进行SQL注入检测</p>
+<h4 id="指定BURP或者WebScarab导出文件"><a href="#指定BURP或者WebScarab导出文件" class="headerlink" title="指定BURP或者WebScarab导出文件"></a>指定BURP或者WebScarab导出文件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -l ./a.log<br></code></pre></td></tr></table></figure>
+
+<p>将BURP等安全抓包工具中导出的需要分析的请求进行SQL注入检测</p>
+<h4 id="指定sitemap-xml"><a href="#指定sitemap-xml" class="headerlink" title="指定sitemap.xml"></a>指定sitemap.xml</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -x <span class="hljs-string">&quot;https://m.juzilicai.com/sitemap.xml&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>读取指定sitemap.xml文件,并分析其中URL进行SQL注入检测</p>
+<h4 id="指定HTTP请求报文"><a href="#指定HTTP请求报文" class="headerlink" title="指定HTTP请求报文"></a>指定HTTP请求报文</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -r ./request.txt<br></code></pre></td></tr></table></figure>
+
+<p>这个是sqlmap最简单的, 也是最好用的一个用法, sqlmap会去读取这个HTTP请求文件, 从文件中提取出所有HTTP请求相关的参数进行填充, 这样可以为了省去很多参数的配置.</p>
+<h4 id="指定多个请求"><a href="#指定多个请求" class="headerlink" title="指定多个请求"></a>指定多个请求</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -m ./multi.txt<br></code></pre></td></tr></table></figure>
+
+<p>从文件中读取多个请求进行SQL注入检测</p>
+<h3 id="请求相关的参数"><a href="#请求相关的参数" class="headerlink" title="请求相关的参数"></a>请求相关的参数</h3><h4 id="指定请求方式"><a href="#指定请求方式" class="headerlink" title="指定请求方式"></a>指定请求方式</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://db.qq.com/test&quot;</span> --method POST<br></code></pre></td></tr></table></figure>
+
+<p>使用POST请求对URL进行SQL检测</p>
+<h4 id="指定请求的内容"><a href="#指定请求的内容" class="headerlink" title="指定请求的内容"></a>指定请求的内容</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://db.qq.com/test&quot;</span> --method POST --data <span class="hljs-string">&quot;a=1&amp;b=2&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>向指定URL通过POST发送data数据,并且对相关参数进行SQL注入检测, data通常用在POST和PUT请求中</p>
+<h4 id="指定Cookie"><a href="#指定Cookie" class="headerlink" title="指定Cookie"></a>指定Cookie</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://db.qq.com/test&quot;</span> --cookie <span class="hljs-string">&quot;a=1; b=2&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>指定Cookie对URL进行SQL注入检测, 一般接口需要登录态, Cookie中存在注入也可以进行检测<br>相关其他参数:</p>
+<ul>
+<li>drop-set-cookie: 忽略响应中Set-Cookie的响应头</li>
+</ul>
+<h4 id="指定User-Agent"><a href="#指定User-Agent" class="headerlink" title="指定User-Agent"></a>指定User-Agent</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test&quot;</span> --user-agent <span class="hljs-string">&quot;huangjacky1.2&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>将HTTP请求头中User-Agent字段设置成指定的内容<br>相关其他参数:</p>
+<ul>
+<li>random-agent: 随机设置浏览器agent字符串</li>
+</ul>
+<h4 id="指定Referer"><a href="#指定Referer" class="headerlink" title="指定Referer"></a>指定Referer</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test&quot;</span> --referer <span class="hljs-string">&quot;http://a.qq.com&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>设置请求头中Referer字段, 很多网站会为了防止CSRF对Referer进行检测, 因此这个字段很多时候需要使用</p>
+<h4 id="指定其他HTTP头"><a href="#指定其他HTTP头" class="headerlink" title="指定其他HTTP头"></a>指定其他HTTP头</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test&quot;</span> -H <span class="hljs-string">&quot;X-Forwarded-For: 127.0.0.1&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>设置任意HTTP头后对URL进行SQL注入检测<br>相关其他参数:</p>
+<ul>
+<li>headers: 一次性设置多个头, 头之间用\n进行分隔</li>
+</ul>
+<h4 id="指定超时-重试-间隔"><a href="#指定超时-重试-间隔" class="headerlink" title="指定超时,重试,间隔"></a>指定超时,重试,间隔</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test&quot;</span> --delay 1 --<span class="hljs-built_in">timeout</span> 15 --retries 2<br></code></pre></td></tr></table></figure>
+
+<p>针对部分网络情况对请求进行策略调整.</p>
+<ul>
+<li>delay: 请求和请求之间间隔多少秒, 默认没有间隔,可能会被频率控制拦截</li>
+<li>timeout: 请求执行超时时间,单位秒,默认是30s</li>
+<li>retries: 当发生超时时候,是否执行重试, 默认3次</li>
+</ul>
+<h4 id="指定CSRF-TOKEN"><a href="#指定CSRF-TOKEN" class="headerlink" title="指定CSRF TOKEN"></a>指定CSRF TOKEN</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test?a=1&amp;token=1111&quot;</span> --csrf-token token --csrf-url <span class="hljs-string">&quot;http://a.qq.com/token&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>告诉SQLmap参数中哪一个参数是token, 这个值需要从什么地方获取</p>
+<ul>
+<li>csrf-token: token的字段名</li>
+<li>csrf-url: 指定URL页面获取token的值</li>
+</ul>
+<h4 id="执行指定的python代码"><a href="#执行指定的python代码" class="headerlink" title="执行指定的python代码"></a>执行指定的python代码</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test?id=1&amp;hash=xxxxx&quot;</span> --<span class="hljs-built_in">eval</span>=<span class="hljs-string">&quot;import hashlib;hash=hashlib.md5(id).hexdigest()&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>当参数之间的逻辑需要特定的方式去实现的时候,我们可以通过eval来写一段python代码来实现.</p>
+<p>其他参数暂时不介绍了,使用不是很多.</p>
+<h3 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h3><h4 id="并发线程数"><a href="#并发线程数" class="headerlink" title="并发线程数"></a>并发线程数</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test&quot;</span> --threads 8<br></code></pre></td></tr></table></figure>
+
+<p>设置请求的线程数, 默认只有1, 最大不能超过10</p>
+<h4 id="长连接"><a href="#长连接" class="headerlink" title="长连接"></a>长连接</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test&quot;</span> --keep-alive<br></code></pre></td></tr></table></figure>
+
+<p>使用HTTP长连接,让请求之间复用HTTP连接,减少TCP连接的消耗</p>
+<h4 id="不获取内容"><a href="#不获取内容" class="headerlink" title="不获取内容"></a>不获取内容</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test&quot;</span> --null-connection<br></code></pre></td></tr></table></figure>
+
+<p>SQLmap只检测响应的字节数,不去获取响应内容, 因为很多时候字节数就可以判断出来是否存在问题</p>
+<h4 id="打开的优化项开关"><a href="#打开的优化项开关" class="headerlink" title="打开的优化项开关"></a>打开的优化项开关</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test&quot;</span> -o<br></code></pre></td></tr></table></figure>
+
+<p>开关打开后,上面优化的选项才能生效. 切记.</p>
+<h3 id="检测"><a href="#检测" class="headerlink" title="检测"></a>检测</h3><h4 id="检测和风险等级"><a href="#检测和风险等级" class="headerlink" title="检测和风险等级"></a>检测和风险等级</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test&quot;</span> --level 5 --risk 3<br></code></pre></td></tr></table></figure>
+
+<p><strong>level:</strong> 设置检测的方方面面和测试用例, 默认是1,会尝试POST和GET, 2:Cookie也会加入检测, 3:User-Agent和Referer也会检测, 更大的值会增加用例量<br><strong>risk:</strong> 设置测试用例的类型,默认是1, 会使用常见的注入用例,2:加入基于时间的盲注, 3: 增加基于OR的测试用例</p>
+<h4 id="内容检测标准"><a href="#内容检测标准" class="headerlink" title="内容检测标准"></a>内容检测标准</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test&quot;</span> --string OK --not-string WRONG<br></code></pre></td></tr></table></figure>
+
+<p>帮助SQLmap识别内容中是否注入成立.</p>
+<ul>
+<li>string: sql为True时候的内容匹配</li>
+<li>not-string: sql为False时候的内容匹配</li>
+<li>regexp: sql为True时候的正则匹配</li>
+<li>code: sql为True的时候响应码</li>
+</ul>
+<p>相关其他参数:</p>
+<ul>
+<li>text-only: 只检测文本内容</li>
+<li>titles: 只检测HTML的title</li>
+</ul>
+<h3 id="注入相关"><a href="#注入相关" class="headerlink" title="注入相关"></a>注入相关</h3><h4 id="指定参数"><a href="#指定参数" class="headerlink" title="指定参数"></a>指定参数</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test?a=1&amp;b=2&quot;</span> --level 2 -p <span class="hljs-string">&#x27;a,user-agent&#x27;</span> --skip b<br></code></pre></td></tr></table></figure>
+
+<p>默认SQLmap会检测所有相关的参数, 为了效率我们可以指定只检测某些参数,或者不检测那些参数.<br>这些参数除了GET,POST还可以像例子中设置user-agent等请求头.</p>
+<h4 id="指定后端数据库"><a href="#指定后端数据库" class="headerlink" title="指定后端数据库"></a>指定后端数据库</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test&quot;</span> --dbms mysql<br></code></pre></td></tr></table></figure>
+
+<p>如果能够知道后端数据库的类型后, 我们可以指定类型后,减少无关的测试用例.</p>
+<h4 id="加工脚本"><a href="#加工脚本" class="headerlink" title="加工脚本"></a>加工脚本</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test&quot;</span> --tamper base64encode.py<br></code></pre></td></tr></table></figure>
+
+<p>对SQLmap的payload进行base64编码后再提交<br>可用的tamper脚本都位于tamper目录下, 我们也可以实现自己的tamper脚本</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> lib.core.enums <span class="hljs-keyword">import</span> PRIORITY<br>__priority__ = PRIORITY.NORMAL<br><span class="hljs-keyword">def</span> <span class="hljs-title function_">tamper</span>(<span class="hljs-params">payload</span>):<br>    <span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">    Description of your tamper script</span><br><span class="hljs-string">    &#x27;&#x27;&#x27;</span><br>    retVal = payload<br>    <span class="hljs-keyword">return</span> retVal<br></code></pre></td></tr></table></figure>
+
+<p>输入是原始的SQLmap的payload, 输出是处理后的值</p>
+<h3 id="枚举"><a href="#枚举" class="headerlink" title="枚举"></a>枚举</h3><p>当检测到存在SQL注入漏洞之后, SQLmap会帮助我们自动化枚举相关信息.</p>
+<h4 id="枚举概况"><a href="#枚举概况" class="headerlink" title="枚举概况"></a>枚举概况</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test&quot;</span> -a -b<br></code></pre></td></tr></table></figure>
+
+<p>其中:</p>
+<ul>
+<li>a : 枚举所有的信息, 后面会介绍有多少信息</li>
+<li>b : 返回数据库的banner, 一般有类型,版本等信息.</li>
+</ul>
+<h4 id="枚举当前数据库和用户"><a href="#枚举当前数据库和用户" class="headerlink" title="枚举当前数据库和用户"></a>枚举当前数据库和用户</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test&quot;</span> --current-db --current-user --hostname --is-dba<br></code></pre></td></tr></table></figure>
+
+<p>枚举以下信息:</p>
+<ul>
+<li>current-db: 当前程序使用的db的名字</li>
+<li>current-user: 当前程序使用的数据库用户名</li>
+<li>hostname: 当前DB服务器的主机名</li>
+<li>is-dba: 当前程序所使用的数据库用户是不是dba</li>
+</ul>
+<h4 id="枚举数据库相关信息"><a href="#枚举数据库相关信息" class="headerlink" title="枚举数据库相关信息"></a>枚举数据库相关信息</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test&quot;</span> --<span class="hljs-built_in">users</span> --passwords --privileges --dbs<br></code></pre></td></tr></table></figure>
+
+<p>枚举以下信息, 但是因为权限问题, 不一定能获取到信息:</p>
+<ul>
+<li>users: 数据库服务器中所有的用户</li>
+<li>passwords: 数据库服务器中所有用户的密码hash</li>
+<li>privileges: 数据库服务器中所有的用户权限分配</li>
+<li>dbs: 数据库服务器中所有的数据库名字</li>
+</ul>
+<h4 id="指定被枚举对象"><a href="#指定被枚举对象" class="headerlink" title="指定被枚举对象"></a>指定被枚举对象</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test&quot;</span> -D 库名 -T 表名 -C 列名 -U 用户名 <span class="hljs-comment"># 后面再接上其他枚举指令</span><br></code></pre></td></tr></table></figure>
+
+<p>指定被枚举的对象, 比如我们要枚举某一个库中所有的表, 那么就需要使用-D来指定库名</p>
+<h4 id="枚举数据库相关详情"><a href="#枚举数据库相关详情" class="headerlink" title="枚举数据库相关详情"></a>枚举数据库相关详情</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test&quot;</span> --tables --columns --count<br></code></pre></td></tr></table></figure>
+
+<p>枚举以下信息:</p>
+<ul>
+<li>tables: 枚举指定数据库中所有的表名, 需要-D</li>
+<li>columns: 枚举指定表中所有的列名, 需要-T</li>
+<li>count: 获取指定表中记录数, 需要-T</li>
+</ul>
+<h4 id="导出"><a href="#导出" class="headerlink" title="导出"></a>导出</h4><p>其实就是我们俗称的脱裤</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test&quot;</span> --dump -D testDB -T testTB<br></code></pre></td></tr></table></figure>
+
+<p>导出指定表中所有数据</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test&quot;</span> --dump-all -D testDB<br></code></pre></td></tr></table></figure>
+
+<p>导出所有表的所有数据</p>
+<h4 id="暴力枚举"><a href="#暴力枚举" class="headerlink" title="暴力枚举"></a>暴力枚举</h4><p>很多时候, 因为权限设置, 程序所使用的数据库用户并不能通过系统相关表来获取到所有的表和列, 那么我们只能通过字典进行枚举.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test&quot;</span> --tables -D testDB --common-tables<br></code></pre></td></tr></table></figure>
+
+<p>通过表名的字典去尝试查询testDB中所有存在的表.<br>同样地道理<strong>common-columns</strong>来暴力猜所有的列名.<br>相关的字典分别位于: txt&#x2F;common-tables.txt和txt&#x2F;common-columns.txt中,我们可以自己维护.</p>
+<h4 id="文件操作"><a href="#文件操作" class="headerlink" title="文件操作"></a>文件操作</h4><p>当用户的权限和数据库服务器满足特定条件才能操作:</p>
+<h5 id="读取数据库服务器上的文件"><a href="#读取数据库服务器上的文件" class="headerlink" title="读取数据库服务器上的文件"></a>读取数据库服务器上的文件</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test&quot;</span> --file-read=/etc/passwd<br></code></pre></td></tr></table></figure>
+
+<p>读取指定文件到SQLmap的session目录中去</p>
+<h5 id="上传本地文件到数据库服务器"><a href="#上传本地文件到数据库服务器" class="headerlink" title="上传本地文件到数据库服务器"></a>上传本地文件到数据库服务器</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test&quot;</span> --file-write=本地文件路径 --file-dest=数据库服务器路径<br></code></pre></td></tr></table></figure>
+
+<p>把本地一个文件上传到数据库服务器中去, 注意目标路径,数据库用户一定要有写权限</p>
+<h4 id="执行系统命令"><a href="#执行系统命令" class="headerlink" title="执行系统命令"></a>执行系统命令</h4><p>相关的操作也需要数据库用户的权限, 因此也不一定能执行成功</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test&quot;</span> --os-cmd <span class="hljs-string">&quot;id&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>执行一个系统命令, 并返回结果.<br>我们还可以使用<strong>os-shell</strong>来获取一个交互式的shell, 直接输入命令等.</p>
+<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><h4 id="输出格式"><a href="#输出格式" class="headerlink" title="输出格式"></a>输出格式</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test&quot;</span> --dump-all -D testdb --dump-format HTML --output-dir /data/test<br></code></pre></td></tr></table></figure>
+
+<p>设置导出的格式和session等其他输出保存的目录</p>
+<h4 id="静默运行"><a href="#静默运行" class="headerlink" title="静默运行"></a>静默运行</h4><p>正常情况, 很多地方SQLmap都会询问我们一些选项, 在自动化的过程中,这个非常麻烦.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test&quot;</span> --batch --answers <span class="hljs-string">&quot;follow=Y,extending=N&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>使用batch的话,所有提问的地方都选择默认参数. 如果你需要个别地方指定回答, 那么你可以使用answers写上多个你自己的答案.</p>
+<h4 id="清除缓存"><a href="#清除缓存" class="headerlink" title="清除缓存"></a>清除缓存</h4><p>默认情况SQLmap会使用上一次检测的结果, 这样对于代码修复后的效果检测会存在很大的误报.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test&quot;</span> --flush-session --fresh-queries<br></code></pre></td></tr></table></figure>
+
+<p>其中<strong>flush-session</strong>会清空当前URL相关的session, <strong>fresh-queries</strong>会忽略之前的查询结果,进行重新请求操作.</p>
+<h4 id="查看注入详情"><a href="#查看注入详情" class="headerlink" title="查看注入详情"></a>查看注入详情</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test&quot;</span> -v 1<br></code></pre></td></tr></table></figure>
+
+<p>设置不同详情的等级, 显示不同的内容.其中含义如下:</p>
+<p>0：只显示python错误以及严重的信息。<br>1：同时显示基本信息和警告信息。（默认）<br>2：同时显示debug信息。<br>3：同时显示注入的payload。<br>4：同时显示HTTP请求。<br>5：同时显示HTTP响应头。<br>6：同时显示HTTP响应页面</p>
+<h4 id="记录所有HTTP内容"><a href="#记录所有HTTP内容" class="headerlink" title="记录所有HTTP内容"></a>记录所有HTTP内容</h4><p>作为一个爱学习的好青年, 我们需要了解SQLmap都发送了什么内容, 服务器又返回了什么内容.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test&quot;</span> -t ./http.queries.txt<br></code></pre></td></tr></table></figure>
+
+<h4 id="无人值守"><a href="#无人值守" class="headerlink" title="无人值守"></a>无人值守</h4><p>作为一个成功人士,我们的时间都是宝贵的, 不可能一直定在屏幕面前, 那么我们需要在SQLmap检测到SQL注入的时候主动通知我们.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test&quot;</span> --alert <span class="hljs-string">&quot;系统命令&quot;</span> --beep<br></code></pre></td></tr></table></figure>
+
+<p>beep就是电脑会叫一声, 主要还是alert可以执行一个系统命令, 我们可以让它给我们发短信, 发微信.</p>
+<h4 id="新手模式"><a href="#新手模式" class="headerlink" title="新手模式"></a>新手模式</h4><p>参数这么多,如果你记不住怎么办?</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap --wizard<br></code></pre></td></tr></table></figure>
+
+<p>开启一个交互式的注入检测,你只需要跟着提示来就好了.</p>
+<h3 id="safe"><a href="#safe" class="headerlink" title="safe"></a>safe</h3><p>参数：–safe-url,–safe-freq</p>
+<p>有的web应用程序会在你多次访问错误的请求时屏蔽掉你以后的所有请求，这样在sqlmap进行探测或者注入的时候可能造成错误请求而触发这个策略，导致以后无法进行。</p>
+<p>绕过这个策略有两种方式：</p>
+<ul>
+<li>–safe-url：提供一个安全不错误的连接，每隔一段时间都会去访问一下。</li>
+<li>–safe-freq：提供一个安全不错误的连接，每次测试请求之后都会再访问一边安全连接。</li>
+</ul>
+<h3 id="–technique"><a href="#–technique" class="headerlink" title="–technique"></a>–technique</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#使用technique来设置具体的SQL注入技术</span><br>--technique BEUST<br><span class="hljs-comment">#解释如下</span><br>B:boolean 盲注<br>E:报错注入<br>U:联合注入<br>S:堆叠注入<br>T:时间盲注<br>Q:内联注入<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id=""><a href="#" class="headerlink" title=""></a></h3><h2 id="0x02-常见用法"><a href="#0x02-常见用法" class="headerlink" title="0x02 常见用法"></a>0x02 常见用法</h2><h3 id="在URL重定向的情况下指定检测参数"><a href="#在URL重定向的情况下指定检测参数" class="headerlink" title="在URL重定向的情况下指定检测参数"></a>在URL重定向的情况下指定检测参数</h3><p>现在很多框架都将URL重写, 相关的参数不会以querystring的方式出现, 那么我们需要告诉sqlmap注入点在什么地方</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u <span class="hljs-string">&quot;http://a.qq.com/test/111*/bbb/a%INJECT HERE%&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>只需要在指定的参数(Cookie,Header头里面都行)后面加上*或者%INJECT HERE%, 这样同时可以避免使用-p参数</p>
+<h3 id="适合后台快速检测的命令"><a href="#适合后台快速检测的命令" class="headerlink" title="适合后台快速检测的命令"></a>适合后台快速检测的命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -v 2 --url=http://mysite.com/index --user-agent=SQLMAP --delay=1 --<span class="hljs-built_in">timeout</span>=15 --retries=2 --keep-alive --threads=5 --eta --batch --dbms=MySQL --os=Linux --level=5 --risk=4 --banner --is-dba --dbs --tables --technique=BEUST -s /tmp/scan_report.txt --flush-session -t /tmp/scan_trace.txt --fresh-queries<br></code></pre></td></tr></table></figure>
+
+<h3 id="导出相关内容"><a href="#导出相关内容" class="headerlink" title="导出相关内容"></a>导出相关内容</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u http://www.sqldummywebsite.com/cgi-bin/item.cgi?item_id=15 -D sqldummywebsite -T user_info -C user_password,user_login --dump<br></code></pre></td></tr></table></figure>
+
+<h3 id="清除session-重新扫描"><a href="#清除session-重新扫描" class="headerlink" title="清除session, 重新扫描"></a>清除session, 重新扫描</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sqlmap -u 目标 --flush-session --fresh-queries<br></code></pre></td></tr></table></figure>
+
+<h3 id="SQLMAP-HH"><a href="#SQLMAP-HH" class="headerlink" title="SQLMAP -HH"></a>SQLMAP -HH</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><code class="hljs bash">5,000 / 5,000<br>翻译结果<br>-h, --<span class="hljs-built_in">help</span> 显示基本帮助信息并退出<br>  -hh 显示高级帮助信息并退出<br>  --version 显示程序的版本号并退出<br>  -v VERBOSE 详细级别：0-6（默认为 1）<br><br>  目标：<br>    必须提供这些选项中的至少一个来定义<br>    目标<br><br>    -u URL，--url=URL 目标 URL（例如“http://www.site.com/vuln.php?<span class="hljs-built_in">id</span>=1”）<br>    -d DIRECT 直接连接数据库的连接字符串<br>    -l LOGFILE 从 Burp 或 WebScarab 代理日志文件中解析目标<br>    -m BULKFILE 扫描文本文件中给定的多个目标<br>    -r REQUESTFILE 从文件加载 HTTP 请求<br>    -g GOOGLEDORK 将 Google dork 结果作为目标 URL 处理<br>    -c CONFIGFILE 从配置 INI 文件加载选项<br><br>  要求：<br>    这些选项可用于指定如何连接到目标 URL<br><br>    -A AGENT, --user.. HTTP User-Agent 标头值<br>    -H HEADER, --hea.. 额外的标题（例如“X-Forwarded-For: 127.0.0.1”）<br>    --method=METHOD 强制使用给定的 HTTP 方法（例如 PUT）<br>    --data=DATA 要通过 POST 发送的数据字符串（例如“<span class="hljs-built_in">id</span>=1”）<br>    --param-del=PARA.. 用于分割参数值的字符（例如 &amp;）<br>    --cookie=COOKIE HTTP Cookie 标头值（例如“PHPSESSID=a8d127e..”）<br>    --cookie-del=COO.. 用于分割 cookie 值的字符（例如 ;）<br>    --live-cookies=L.. 用于加载最新值的实时 cookie 文件<br>    --load-cookies=L.. 包含 Netscape/wget 格式的 cookie 的文件<br>    --drop-set-cookie 忽略响应中的 Set-Cookie 标头<br>    --mobile 通过HTTP User-Agent header 模仿智能手机<br>    --random-agent 使用随机选择的 HTTP User-Agent 标头值<br>    --host=HOST HTTP 主机标头值<br>    --referer=REFERER HTTP 引用头值<br>    --headers=HEADERS 额外的标题（例如“Accept-Language: fr\nETag: 123”）<br>    --auth-type=AUTH.. HTTP 认证类型（Basic、Digest、Bearer、...）<br>    --auth-cred=AUTH.. HTTP 身份验证凭据（名称：密码）<br>    --auth-file=AUTH.. HTTP 认证 PEM 证书/私钥文件<br>    --ignore-code=IG.. 忽略（有问题的）HTTP 错误代码（例如 401）<br>    --ignore-proxy 忽略系统默认代理设置<br>    --ignore-redirects 忽略重定向尝试<br>    --ignore-timeouts 忽略连接超时<br>    --proxy=PROXY 使用代理连接到目标 URL<br>    --proxy-cred=PRO.. 代理身份验证凭据（名称：密码）<br>    --proxy-file=PRO.. 从文件加载代理列表<br>    --proxy-freq=PRO.. 从给定列表更改代理之间的请求<br>    --tor 使用 Tor 匿名网络<br>    --tor-port=TORPORT 设置 Tor 代理端口不是默认端口<br>    --tor-type=TORTYPE 设置 Tor 代理类型（HTTP、SOCKS4 或 SOCKS5（默认））<br>    --check-tor 检查 Tor 是否正确使用<br>    --delay=DELAY 每个 HTTP 请求之间的延迟秒数<br>    --<span class="hljs-built_in">timeout</span>=TIMEOUT 连接超时前等待的秒数（默认 30）<br>    --retries=RETRIES 连接超时重试（默认3）<br>    --retry-on=RETRYON 对正则表达式匹配内容的重试请求（例如“drop”）<br>    --randomize=RPARAM 随机更改给定参数的值<br>    --safe-url=SAFEURL 测试时经常访问的URL地址<br>    --safe-post=SAFE.. POST 数据发送到一个安全的 URL<br>    --safe-req=SAFER.. 从文件加载安全的 HTTP 请求<br>    --safe-freq=SAFE.. 访问安全 URL 之间的定期请求<br>    --skip-urlencode 跳过有效载荷数据的 URL 编码<br>    --csrf-token=CSR.. 用于保存anti-CSRF令牌的参数<br>    --csrf-url=CSRFURL 提取反 CSRF 令牌要访问的 URL 地址<br>    --csrf-method=CS.. 在反 CSRF 令牌页面访问期间使用的 HTTP 方法<br>    --csrf-retries=C.. 重试反 CSRF 令牌检索（默认 0）<br>    --force-ssl 强制使用 SSL/HTTPS<br>    --chunked 使用 HTTP 分块传输编码 (POST) 请求<br>    --hpp 使用HTTP参数污染方式<br>    --<span class="hljs-built_in">eval</span>=EVALCODE 在请求之前评估提供的 Python 代码（例如<br>                        “导入 hashlib;id2=hashlib.md5(<span class="hljs-built_in">id</span>).hexdigest()”)<br><br>  优化：<br>    这些选项可以用来优化sqlmap的性能<br><br>    -o 打开所有优化开关<br>    --predict-output 预测常见查询输出<br>    --keep-alive 使用持久的 HTTP(s) 连接<br>    --null-connection 在没有实际 HTTP 响应正文的情况下检索页面长度<br>    --threads=THREADS 最大并发 HTTP(s) 请求数（默认 1）<br><br>  注射：<br>    这些选项可用于指定要测试的参数，<br>    提供自定义注入负载和可选的篡改脚本<br>    <br>    -p TESTPARAMETER 可测试参数<br>    --skip=SKIP 跳过给定参数的测试<br>    --skip-static 跳过看起来不是动态的测试参数<br>    --param-exclude=..重新<br></code></pre></td></tr></table></figure>
+
+<h2 id="0x03-tamper"><a href="#0x03-tamper" class="headerlink" title="0x03 tamper"></a>0x03 tamper</h2><p><strong>常用脚本如下</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>脚本名称</th>
+<th>注释</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>0x2char</td>
+<td>将每个编码后的字符转换为等价表达</td>
+</tr>
+<tr>
+<td>2</td>
+<td>apostrophemask</td>
+<td>单引号替换为Utf8字符</td>
+</tr>
+<tr>
+<td>3</td>
+<td>apostrophenullencode</td>
+<td>替换双引号为%00%27</td>
+</tr>
+<tr>
+<td>4</td>
+<td>appendnullbyte</td>
+<td>有效代码后添加%00</td>
+</tr>
+<tr>
+<td>5</td>
+<td>base64encode</td>
+<td>使用base64编码</td>
+</tr>
+<tr>
+<td>6</td>
+<td>between</td>
+<td>比较符替换为between</td>
+</tr>
+<tr>
+<td>7</td>
+<td>bluecoat</td>
+<td>空格替换为随机空白字符，等号替换为like</td>
+</tr>
+<tr>
+<td>8</td>
+<td>chardoubleencode</td>
+<td>双url编码</td>
+</tr>
+<tr>
+<td>9</td>
+<td>charencode</td>
+<td>将url编码</td>
+</tr>
+<tr>
+<td>10</td>
+<td>charunicodeencode</td>
+<td>使用unicode编码</td>
+</tr>
+<tr>
+<td>11</td>
+<td>charunicodeescape</td>
+<td>以指定的payload反向编码未编码的字符</td>
+</tr>
+<tr>
+<td>12</td>
+<td>commalesslimit</td>
+<td>改变limit语句的写法</td>
+</tr>
+<tr>
+<td>13</td>
+<td>commalessmid</td>
+<td>改变mid语句的写法</td>
+</tr>
+<tr>
+<td>14</td>
+<td>commentbeforeparentheses</td>
+<td>在括号前加内联注释</td>
+</tr>
+<tr>
+<td>15</td>
+<td>concat2concatws</td>
+<td>替换CONCAT为CONCAT_WS</td>
+</tr>
+<tr>
+<td>16</td>
+<td>equaltolike</td>
+<td>等号替换为like</td>
+</tr>
+<tr>
+<td>17</td>
+<td>escapequotes</td>
+<td>双引号替换为\\</td>
+</tr>
+<tr>
+<td>18</td>
+<td>greatest</td>
+<td>大于号替换为greatest</td>
+</tr>
+<tr>
+<td>19</td>
+<td>halfversionedmorekeywords</td>
+<td>在每个关键字前加注释</td>
+</tr>
+<tr>
+<td>20</td>
+<td>htmlencode</td>
+<td>html编码所有非字母和数字的字符</td>
+</tr>
+<tr>
+<td>21</td>
+<td>ifnull2casewhenisnull</td>
+<td>改变ifnull语句的写法</td>
+</tr>
+<tr>
+<td>22</td>
+<td>ifnull2ifisnull</td>
+<td>替换ifnull为if(isnull(A))</td>
+</tr>
+<tr>
+<td>23</td>
+<td>informationschemacomment</td>
+<td>标示符后添加注释</td>
+</tr>
+<tr>
+<td>24</td>
+<td>least</td>
+<td>替换大于号为least</td>
+</tr>
+<tr>
+<td>25</td>
+<td>lowercase</td>
+<td>全部替换为小写值</td>
+</tr>
+<tr>
+<td>26</td>
+<td>modsecurityversioned</td>
+<td>空格替换为查询版本的注释</td>
+</tr>
+<tr>
+<td>27</td>
+<td>modsecurityzeroversioned</td>
+<td>添加完整的查询版本的注释</td>
+</tr>
+<tr>
+<td>28</td>
+<td>multiplespaces</td>
+<td>添加多个空格</td>
+</tr>
+<tr>
+<td>29</td>
+<td>nonrecursivereplacement</td>
+<td>替换预定义的关键字</td>
+</tr>
+<tr>
+<td>30</td>
+<td>overlongutf8</td>
+<td>将所有字符转义为utf8</td>
+</tr>
+<tr>
+<td>31</td>
+<td>overlongutf8more</td>
+<td>以指定的payload转换所有字符</td>
+</tr>
+<tr>
+<td>32</td>
+<td>percentage</td>
+<td>每个字符前添加%</td>
+</tr>
+<tr>
+<td>33</td>
+<td>plus2concat</td>
+<td>将加号替换为concat函数</td>
+</tr>
+<tr>
+<td>34</td>
+<td>plus2fnconcat</td>
+<td>将加号替换为ODBC函数{fn CONCAT()}</td>
+</tr>
+<tr>
+<td>35</td>
+<td>randomcase</td>
+<td>字符大小写随机替换</td>
+</tr>
+<tr>
+<td>36</td>
+<td>randomcomments</td>
+<td>&#x2F;**&#x2F;分割关键字</td>
+</tr>
+<tr>
+<td>37</td>
+<td>securesphere</td>
+<td>添加某字符串</td>
+</tr>
+<tr>
+<td>38</td>
+<td>sp_password</td>
+<td>追加sp_password字符串</td>
+</tr>
+<tr>
+<td>39</td>
+<td>space2comment</td>
+<td>空格替换为&#x2F;**&#x2F;</td>
+</tr>
+<tr>
+<td>40</td>
+<td>space2dash</td>
+<td>空格替换为–加随机字符</td>
+</tr>
+<tr>
+<td>41</td>
+<td>space2hash</td>
+<td>空格替换为#加随机字符</td>
+</tr>
+<tr>
+<td>42</td>
+<td>space2morecomment</td>
+<td>空格替换为&#x2F;<strong>_</strong>&#x2F;</td>
+</tr>
+<tr>
+<td>43</td>
+<td>space2morehash</td>
+<td>空格替换为#加随机字符及换行符</td>
+</tr>
+<tr>
+<td>44</td>
+<td>space2mssqlblank</td>
+<td>空格替换为其他空符号</td>
+</tr>
+<tr>
+<td>45</td>
+<td>space2mssqlhash</td>
+<td>空格替换为%23%0A</td>
+</tr>
+<tr>
+<td>46</td>
+<td>space2mysqlblank</td>
+<td>空格替换为其他空白符号</td>
+</tr>
+<tr>
+<td>47</td>
+<td>space2mysqldash</td>
+<td>空格替换为–%0A</td>
+</tr>
+<tr>
+<td>48</td>
+<td>space2plus</td>
+<td>空格替换为加号</td>
+</tr>
+<tr>
+<td>49</td>
+<td>space2randomblank</td>
+<td>空格替换为备选字符集中的随机字符</td>
+</tr>
+<tr>
+<td>50</td>
+<td>symboliclogical</td>
+<td>AND和OR替换为&amp;&amp;和||</td>
+</tr>
+<tr>
+<td>51</td>
+<td>unionalltounion</td>
+<td>union all select替换为union select</td>
+</tr>
+<tr>
+<td>52</td>
+<td>unmagicquotes</td>
+<td>宽字符绕过GPC</td>
+</tr>
+<tr>
+<td>53</td>
+<td>uppercase</td>
+<td>全部替换为大写值</td>
+</tr>
+<tr>
+<td>54</td>
+<td>varnish</td>
+<td>添加HTTP头</td>
+</tr>
+<tr>
+<td>55</td>
+<td>versionedkeywords</td>
+<td>用注释封装每个非函数的关键字</td>
+</tr>
+<tr>
+<td>56</td>
+<td>versionedmorekeywords</td>
+<td>使用注释绕过</td>
+</tr>
+<tr>
+<td>57</td>
+<td>xforwardedfor</td>
+<td>添加伪造的HTTP头</td>
+</tr>
+</tbody></table>
+<h2 id="0x04-附录"><a href="#0x04-附录" class="headerlink" title="0x04 附录"></a>0x04 附录</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://github.com/sqlmapproject/sqlmap/wiki/Usage">SQLmap官方使用手册英文</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.vuln.cn/2035">SQLmap用户手册详解【实用版】</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.owasp.org/index.php/Automated_Audit_using_SQLMap">OWASP基于SQLmap的自动化审计</a></li>
+</ol>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/WEB%E5%AE%89%E5%85%A8/" class="category-chain-item">WEB安全</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/" class="print-no-link">#笔记</a>
+      
+        <a href="/tags/%E5%B7%A5%E5%85%B7/" class="print-no-link">#工具</a>
+      
+        <a href="/tags/sqlmap/" class="print-no-link">#sqlmap</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>工具使用-SQLMAP</div>
+      <div>https://coutcin-xw.github.io/2022/04/24/工具使用-SQLMAP/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>CoutCin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年4月24日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/04/24/C-%E7%9F%A5%E8%AF%86%E7%82%B9/" title="C++-知识点">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">C++-知识点</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/04/24/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8-NMAP/" title="工具使用-NMAP">
+                        <span class="hidden-mobile">工具使用-NMAP</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

